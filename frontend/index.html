@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillWave - AI-Powered Resume Analyzer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>SkillWave</h1>
+            <p class="subtitle">AI-Powered Resume Analyzer & Interview Preparation</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Input Section -->
+            <section class="input-section" id="inputSection">
+                <div class="form-container">
+                    <h2>Analyze Your Resume</h2>
+                    
+                    <div class="form-group upload-group">
+                        <label for="resumeFile">Upload Your Resume (PDF) *</label>
+                        <div class="upload-card" id="uploadCard">
+                            <input type="file" id="resumeFile" accept="application/pdf" hidden />
+                            <div class="upload-content">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                                    <path d="M12 3v10" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M8 7l4-4 4 4" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <rect x="3" y="13" width="18" height="8" rx="2" stroke="#cfe8ee" stroke-width="1.2"/>
+                                </svg>
+                                <p class="upload-instruction">Drag & drop a PDF here, or click to choose a file.</p>
+                                <p class="upload-filename" id="uploadFilename"></p>
+                                <button type="button" class="btn btn-secondary" id="clearFileBtn" style="display:none;margin-top:10px;">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="targetRole">Target Role *</label>
+                        <select id="targetRole" required>
+                            <option value="">-- Select a role --</option>
+                            <option value="Data Analyst">Data Analyst</option>
+                            <option value="Python Developer">Python Developer</option>
+                            <option value="ML Engineer">ML Engineer</option>
+                            <option value="UI/UX Designer">UI/UX Designer</option>
+                            <option value="DevOps Engineer">DevOps Engineer</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary" id="analyzeBtn" onclick="analyzeResume()">
+                        Analyze Resume
+                    </button>
+                </div>
+            </section>
+
+            <!-- Loading Spinner -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your resume with AI...</p>
+            </div>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <!-- Profile Card -->
+                <div class="card profile-card">
+                    <h2>📋 Your Profile</h2>
+                    <div class="profile-grid">
+                        <div class="profile-item">
+                            <strong>Name:</strong>
+                            <span id="profileName">-</span>
+                        </div>
+                        <div class="profile-item">
+                            <strong>Education:</strong>
+                            <span id="profileEducation">-</span>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Your Skills</h3>
+                        <div id="skillsList" class="skills-list">
+                            <span class="no-data">No skills detected</span>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Your Projects</h3>
+                        <div id="projectsList" class="projects-list">
+                            <span class="no-data">No projects detected</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Readiness Card -->
+                <div class="card readiness-card">
+                    <h2>📊 Role Readiness</h2>
+                    <div id="targetRoleDisplay" class="target-role"></div>
+                    
+                    <div class="readiness-meter">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="readinessFill"></div>
+                        </div>
+                        <div class="readiness-text">
+                            <span id="readinessPercent">0%</span>
+                            <span id="readinessLabel">Ready</span>
+                        </div>
+                    </div>
+
+                    <div class="readiness-description">
+                        <p>You have <strong id="matchedSkills">0</strong> out of <strong id="totalSkills">0</strong> required skills.</p>
+                    </div>
+                </div>
+
+                <!-- Missing Skills Card -->
+                <div class="card missing-skills-card">
+                    <h2>🎯 Skills to Develop</h2>
+                    <p class="card-subtitle">Focus on these skills to improve your readiness</p>
+                    <div id="missingSkillsList" class="skills-list">
+                        <span class="no-data">No missing skills</span>
+                    </div>
+                </div>
+
+                <!-- Learning Recommendations Card -->
+                <div class="card learning-card" id="learningCard" style="display: none;">
+                    <h2>📚 Learning Recommendations</h2>
+                    <p class="card-subtitle">Courses and resources to close your skill gaps</p>
+                    <div id="learningRecommendations" class="learning-list">
+                        <span class="no-data">No recommendations available</span>
+                    </div>
+                </div>
+
+                <!-- Preparation Roadmap Card -->
+                <div class="card roadmap-card" id="roadmapCard" style="display: none;">
+                    <h2>🗺️ Learning Roadmap</h2>
+                    <p class="card-subtitle">Week-by-week preparation plan</p>
+                    <div id="preparationRoadmap" class="roadmap-list">
+                        <span class="no-data">No roadmap available</span>
+                    </div>
+                </div>
+
+                <!-- Interview Questions Section -->
+                <div class="card questions-card">
+                    <h2>❓ Interview Questions</h2>
+                    <p class="card-subtitle">20 personalized questions to prepare for your interview</p>
+                    
+                    <div class="questions-grid" id="questionsList">
+                        <span class="no-data">Questions will appear here...</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="resetForm()">← Analyze Another Resume</button>
+                    <button class="btn btn-download" onclick="downloadResults()">📥 Download Results</button>
+                </div>
+            </section>
+
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

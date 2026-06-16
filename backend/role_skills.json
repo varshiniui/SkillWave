@@ -1,0 +1,52 @@
+{
+  "Data Analyst": [
+    "SQL",
+    "Power BI",
+    "Python",
+    "Statistics",
+    "Excel",
+    "Data Visualization",
+    "Tableau",
+    "Google Analytics"
+  ],
+  "Python Developer": [
+    "Python",
+    "Django/Flask",
+    "REST APIs",
+    "Git",
+    "SQL",
+    "JavaScript",
+    "HTML/CSS",
+    "Linux"
+  ],
+  "ML Engineer": [
+    "Python",
+    "Machine Learning",
+    "Deep Learning",
+    "TensorFlow/PyTorch",
+    "Statistics",
+    "Data Preprocessing",
+    "SQL",
+    "Git"
+  ],
+  "UI/UX Designer": [
+    "Figma",
+    "Wireframing",
+    "User Research",
+    "Prototyping",
+    "CSS",
+    "Adobe XD",
+    "Usability Testing",
+    "Design Systems"
+  ],
+  "DevOps Engineer": [
+    "Docker",
+    "Kubernetes",
+    "CI/CD",
+    "AWS/Azure/GCP",
+    "Linux",
+    "Jenkins",
+    "Git",
+    "Terraform"
+  ]
+}

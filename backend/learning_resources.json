@@ -1,0 +1,34 @@
+{
+  "SQL": [
+    {"name": "SQL for Data Science", "platform": "Coursera", "url": "https://www.coursera.org/learn/sql-for-data-science", "duration": "4 weeks", "price": "Free"},
+    {"name": "The Complete SQL Bootcamp", "platform": "Udemy", "url": "https://www.udemy.com/course/the-complete-sql-bootcamp/", "duration": "8 hours", "price": "Paid"}
+  ],
+  "Power BI": [
+    {"name": "Getting Started with Power BI", "platform": "edX", "url": "https://www.edx.org/course/analyzing-and-visualizing-data-with-power-bi", "duration": "6 weeks", "price": "Free"}
+  ],
+  "Python": [
+    {"name": "Python for Everybody", "platform": "Coursera", "url": "https://www.coursera.org/specializations/python", "duration": "8 weeks", "price": "Free"},
+    {"name": "Automate the Boring Stuff with Python", "platform": "Udemy", "url": "https://www.udemy.com/course/automate/", "duration": "12 hours", "price": "Paid"}
+  ],
+  "Statistics": [
+    {"name": "Statistics for Data Science", "platform": "Coursera", "url": "https://www.coursera.org/specializations/statistics", "duration": "6 weeks", "price": "Free"}
+  ],
+  "Excel": [
+    {"name": "Excel Skills for Business", "platform": "Coursera", "url": "https://www.coursera.org/specializations/excel", "duration": "6 weeks", "price": "Free"}
+  ],
+  "Data Visualization": [
+    {"name": "Data Visualization with Tableau", "platform": "Coursera", "url": "https://www.coursera.org/specializations/data-visualization", "duration": "5 weeks", "price": "Free"}
+  ],
+  "Tableau": [
+    {"name": "Tableau 2020 A-Z", "platform": "Udemy", "url": "https://www.udemy.com/course/tableau10/", "duration": "10 hours", "price": "Paid"}
+  ],
+  "Google Analytics": [
+    {"name": "Google Analytics for Beginners", "platform": "Google Analytics Academy", "url": "https://analytics.google.com/analytics/academy/", "duration": "4 hours", "price": "Free"}
+  ],
+  "Machine Learning": [
+    {"name": "Machine Learning", "platform": "Coursera (Andrew Ng)", "url": "https://www.coursera.org/learn/machine-learning", "duration": "11 weeks", "price": "Free"}
+  ],
+  "Deep Learning": [
+    {"name": "Deep Learning Specialization", "platform": "Coursera", "url": "https://www.coursera.org/specializations/deep-learning", "duration": "3 months", "price": "Paid"}
+  ]
+}
