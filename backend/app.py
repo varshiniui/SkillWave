@@ -182,12 +182,13 @@ def analyze_file():
         file.save(tmp.name)
 
         try:
-            reader = PyPDF2.PdfReader(tmp.name)
+            import pdfplumber
             text_pages = []
-            for page in reader.pages:
-                page_text = page.extract_text()
-                if page_text:
-                    text_pages.append(page_text)
+            with pdfplumber.open(tmp.name) as pdf:
+                for page in pdf.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        text_pages.append(page_text)
             resume_text = '\n'.join(text_pages).strip()
         except Exception as e:
             return jsonify({'error': f'Failed to read PDF: {e}'}), 500

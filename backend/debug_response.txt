@@ -1,0 +1,59 @@
+```json
+{
+  "name": "Sahaya Varshini M J",
+  "skills": [
+    "Figma",
+    "Wireframing",
+    "Prototyping",
+    "User Flows",
+    "Design Systems",
+    "Micro Interactions",
+    "Component Libraries",
+    "Design Handoff",
+    "React.js",
+    "Next.js 14",
+    "HTML5",
+    "CSS3",
+    "Tailwind CSS",
+    "Framer Motion",
+    "shadcn/ui",
+    "Responsive Design",
+    "Accessibility",
+    "Animation & Motion",
+    "JavaScript",
+    "TypeScript (Basics)",
+    "Dart",
+    "Python",
+    "SQL",
+    "Node.js",
+    "Express.js",
+    "REST APIs",
+    "PostgreSQL",
+    "MySQL",
+    "JWT Auth",
+    "Canva",
+    "Chrome DevTools",
+    "Chart.js",
+    "Vercel",
+    "Folium"
+  ],
+  "projects": [
+    "Personal Portfolio Website",
+    "Voca – AI Voice Note Summarizer",
+    "FocusTrack – Productivity Chrome Extension",
+    "foodi. – Restaurant Discovery Platform"
+  ],
+  "education": "B.Tech - Information Technology",
+  "certifications": [
+    "UI/UX Design - Zoro Tech",
+    "Frontend Development using React.js - Besant Technologies",
+    "Python for AI & Data Science - Coursera (IBM)",
+    "Data Analytics (SQL & Power BI) - Besant Technologies"
+  ],
+  "experience": [
+    "UI/UX Design Intern at Zoro Tech",
+    "Frontend Development Intern at Besant Technologies",
+    "Full Stack Development Intern at SaiKet Systems"
+  ]
+}
+```

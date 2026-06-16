@@ -1,0 +1,68 @@
+SAHAYA VARSHINI M J
+UI/UX Designer | Frontend Developer | B.Tech Information Technology
+9047186256 | varshiniishya@gmail.com | Nagercoil, Tamil Nadu
+Portfolio: portfolio-one-rho-42.vercel.app | LinkedIn: linkedin.com/in/varshini-shya | GitHub: github.com/varshiniui
+OBJECTIVE
+B.Tech IT student (3rd Year) with a UI/UX Design internship and frontend development experience building
+production-deployed interfaces. Proficient in Figma wireframing, prototyping, and user flow design, with strong
+implementation skills in React.js, Next.js 14, Tailwind CSS, and Framer Motion animations. Awarded 1st Prize at a national-
+level paper presentation for research on micro interactions in web UX. Seeking a UI/UX internship to contribute
+user-centred design thinking and pixel-perfect frontend execution to real-world products.
+EDUCATION
+B.Tech – Information Technology
+University Collegeof Engineering Nagercoil | 3rd Year
+TECHNICAL SKILLS
+UI/UX Design: Figma, Wireframing, Prototyping, User Flows, Design Systems, Micro Interactions, Component Libraries,
+Design Handoff
+Frontend: React.js, Next.js 14, HTML5, CSS3, Tailwind CSS, Framer Motion, shadcn/ui, Responsive Design, Accessibility
+Animation & Motion: Framer Motion (page transitions, scroll animations, gesture-based UI), CSS animations, Waveform UI
+Design Tools: Figma, Canva, Chrome DevTools, Vercel
+Languages: JavaScript, TypeScript (Basics), Dart, Python, SQL
+Backend &DB: Node.js, Express.js, REST APIs, PostgreSQL, MySQL, JWT Auth
+PROJECTS
+Personal Portfolio Website
+• Designed end-to-end in Figma before implementation — including user flow, colour system (oklch mint & sage
+palette), typography scale, and component hierarchy across 10+ sections
+• Implemented micro interactions throughout: typewriter hero, animated stat counters, scroll-triggered section reveals,
+and a 7-milestone journey timeline with Framer Motion
+• Achieved a cohesive, accessible design system with consistent spacing, visual hierarchy, and responsive layouts
+across all screensizes
+Voca – AI Voice Note Summarizer
+• Led UI/UX design for the full application — designed the real-time audio waveform visualiser, transcript editor, and
+PDF export flow with focus onminimal cognitive load and intuitive information hierarchy
+• Applied user-centred design principles to the PIN-based auth flow: simple 4-digit entry with clear feedback states,
+error handling, and accessible contrast ratios
+• Delivered responsive, animated interfaces supporting 7 languages; sub-10s transcriptionwith real-time progress
+feedback to reduce perceived wait time
+FocusTrack – Productivity Chrome Extension
+• Designed the complete extension UI within Chrome's constrained popup dimensions — prioritised compact,
+scannable layouts with clear visual hierarchy for the goal tracker and site-blocking controls
+• Created a custom analytics dashboard with Chart.js interactive bar charts and a branded blocked-page experience
+consistent with the extension's visual identity
+foodi. – Restaurant Discovery Platform
+• Designed and built the complete frontend with interactive filter controls, live charts, and a Folium map with
+colour-coded markers and clickable popups for intuitive restaurant discovery
+INTERNSHIP EXPERIENCE
+UI/UX Design Intern | Zoro Tech
+• Produced wireframes and interactive prototypes in Figma; applied user-centred design principles to real-world
+project briefs and delivered design assets ready for developer handoff
+• Studied user interaction patterns and applied micro interaction design principles to improve interface
+responsiveness and user engagement
+Frontend Development Intern | Besant Technologies
+• Built component-based UIs inReact.js, developing strong intuitionfor translating visual designs into responsive,
+accessible frontend code
+Full Stack Development Intern | SaiKet Systems
+• Owned the frontend layer across two full-stack projects using Next.js and Tailwind CSS; ensured UI consistency,
+responsiveness, and design fidelity throughout development
+Additional: AI/MLIntern — Alric Infotech Pvt Ltd (2025) | Data Analytics Intern — Besant Technologies (2025, Virtual)
+CERTIFICATIONS
+• UI/UX Design — Zoro Tech
+• Frontend Development using React.js — Besant Technologies
+• Pythonfor AI & Data Science — Coursera (IBM)
+• Data Analytics (SQL & Power BI) — Besant Technologies
+ACHIEVEMENTS
+• 1st Prize — National Level Paper Presentation, SACOESIUM 2025: "The Role of Micro Interactions in Web UX"
+• 3rd Prize — College Symposium Paper Presentation: "Real-Time Stray Dog Detection and Risk Analysis using
+YOLOv5"
+LANGUAGES
+Tamil — Native | English — Proficient

@@ -30,5 +30,54 @@
   ],
   "Deep Learning": [
     {"name": "Deep Learning Specialization", "platform": "Coursera", "url": "https://www.coursera.org/specializations/deep-learning", "duration": "3 months", "price": "Paid"}
+  ],
+  "Figma": [
+    {"name": "Figma UI/UX Design Essentials", "platform": "Udemy", "url": "https://www.udemy.com/course/figma-ux-ui-design-user-experience-tutorial/", "duration": "10 hours", "price": "Paid"},
+    {"name": "Introduction to Figma", "platform": "Coursera", "url": "https://www.coursera.org/learn/figma-ux-design", "duration": "2 weeks", "price": "Free"}
+  ],
+  "Wireframing": [
+    {"name": "Introduction to Wireframing", "platform": "Coursera", "url": "https://www.coursera.org/learn/introduction-to-wireframing", "duration": "3 weeks", "price": "Free"}
+  ],
+  "User Research": [
+    {"name": "User Research and Design", "platform": "Coursera", "url": "https://www.coursera.org/learn/user-research-design", "duration": "4 weeks", "price": "Free"}
+  ],
+  "Prototyping": [
+    {"name": "Prototyping and Design", "platform": "Coursera", "url": "https://www.coursera.org/learn/prototyping-design", "duration": "4 weeks", "price": "Free"}
+  ],
+  "CSS": [
+    {"name": "CSS - The Complete Guide (incl. Flexbox, Grid & Sass)", "platform": "Udemy", "url": "https://www.udemy.com/course/css-the-complete-guide-incl-flexbox-grid-sass/", "duration": "22 hours", "price": "Paid"}
+  ],
+  "Adobe XD": [
+    {"name": "Adobe XD UI/UX Design", "platform": "Udemy", "url": "https://www.udemy.com/course/adobe-xd-ux-ui-design-user-experience-course/", "duration": "11 hours", "price": "Paid"}
+  ],
+  "Usability Testing": [
+    {"name": "Evaluating User Interfaces", "platform": "Coursera", "url": "https://www.coursera.org/learn/evaluating-user-interfaces", "duration": "4 weeks", "price": "Free"}
+  ],
+  "Design Systems": [
+    {"name": "Introduction to Design Systems", "platform": "Coursera", "url": "https://www.coursera.org/learn/design-systems", "duration": "3 weeks", "price": "Free"}
+  ],
+  "Docker": [
+    {"name": "Docker and Kubernetes: The Complete Guide", "platform": "Udemy", "url": "https://www.udemy.com/course/docker-and-kubernetes-the-complete-guide/", "duration": "22 hours", "price": "Paid"}
+  ],
+  "Kubernetes": [
+    {"name": "Kubernetes Certified Application Developer (CKAD)", "platform": "Udemy", "url": "https://www.udemy.com/course/certified-kubernetes-application-developer/", "duration": "15 hours", "price": "Paid"}
+  ],
+  "CI/CD": [
+    {"name": "DevOps, CI/CD, and Build Automation", "platform": "Coursera", "url": "https://www.coursera.org/learn/devops-cod-build-automation", "duration": "4 weeks", "price": "Free"}
+  ],
+  "AWS/Azure/GCP": [
+    {"name": "AWS Certified Cloud Practitioner", "platform": "Coursera", "url": "https://www.coursera.org/learn/aws-cloud-practitioner-essentials", "duration": "4 weeks", "price": "Free"}
+  ],
+  "Jenkins": [
+    {"name": "Jenkins, From Zero To Hero", "platform": "Udemy", "url": "https://www.udemy.com/course/jenkins-from-zero-to-hero/", "duration": "10 hours", "price": "Paid"}
+  ],
+  "Git": [
+    {"name": "Version Control with Git", "platform": "Coursera", "url": "https://www.coursera.org/learn/version-control-with-git", "duration": "4 weeks", "price": "Free"}
+  ],
+  "Terraform": [
+    {"name": "HashiCorp Certified: Terraform Associate", "platform": "Udemy", "url": "https://www.udemy.com/course/terraform-hands-on/", "duration": "12 hours", "price": "Paid"}
+  ],
+  "Linux": [
+    {"name": "Linux Tools for Developers", "platform": "Coursera", "url": "https://www.coursera.org/learn/linux-tools-for-developers", "duration": "4 weeks", "price": "Free"}
   ]
 }
