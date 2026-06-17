@@ -36,7 +36,7 @@ st.markdown("""
 st.markdown('<div class="main-header">SkillWave</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">AI-Powered Resume Analyzer & Interview Preparation</div>', unsafe_allow_html=True)
 
-API_URL = "http://localhost:5000"
+API_URL = "https://skillwave-trnj.onrender.com"
 
 
 def render_readiness_gauge(readiness):
