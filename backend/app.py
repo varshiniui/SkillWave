@@ -84,7 +84,16 @@ def export_pdf():
         if not profile or not questions or not target_role:
             return jsonify({"error": "Missing profile, questions, or target_role"}), 400
 
+        print("=== PDF EXPORT STARTED ===")
+        print(f"Profile keys: {list(profile.keys())}")
+        print(f"Questions count: {len(questions)}")
+        print(f"Target role: {target_role}")
+        print(f"Learning recs count: {len(profile.get('learning_recommendations', []))}")
+        print(f"Roadmap count: {len(profile.get('preparation_roadmap', []))}")
+
         pdf_data = generate_pdf_report(profile, questions, target_role)
+
+        print("=== PDF EXPORT SUCCESS ===")
         return pdf_data, 200, {
             "Content-Type": "application/pdf",
             "Content-Disposition": "attachment; filename=SkillWave_Report.pdf"
@@ -92,6 +101,7 @@ def export_pdf():
 
     except Exception as e:
         import traceback
+        print("=== PDF EXPORT FAILED ===")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
