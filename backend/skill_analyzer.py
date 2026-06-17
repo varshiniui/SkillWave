@@ -44,6 +44,7 @@ VALID_SKILLS = {
     "rest api", "graphql", "websockets", "microservices", "agile", "scrum",
     "solid principles", "design patterns", "oop", "oauth", "jwt", "ssl", "encryption",
     "git", "grpc", "protobuf", "groovy", "gradle", "maven",
+    "authentication", "deployment",
 }
 
 def normalize_skill(skill: str) -> str:
