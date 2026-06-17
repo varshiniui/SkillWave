@@ -3,12 +3,142 @@ import os
 import re
 import time
 import traceback
+from difflib import SequenceMatcher
 from dotenv import load_dotenv
 from groq import Groq
 
 load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+# Master list of valid tech skills (normalized lowercase)
+VALID_SKILLS = {
+    # Frontend
+    "html", "css", "javascript", "react", "vue", "angular", "typescript", "tailwind",
+    "bootstrap", "material ui", "figma", "adobe xd", "next.js", "nuxt", "svelte", "sass",
+    # Backend
+    "python", "java", "node.js", "express", "django", "fastapi", "flask", "spring boot",
+    "ruby", "php", "laravel", "asp.net", "c#", "go", "rust", "kotlin", "scala",
+    # Databases
+    "sql", "mysql", "postgresql", "mongodb", "firebase", "dynamodb", "redis", "elasticsearch",
+    "cassandra", "oracle", "nosql", "supabase",
+    # DevOps & Cloud
+    "docker", "kubernetes", "aws", "google cloud", "azure", "jenkins", "github", "gitlab",
+    "ci/cd", "terraform", "ansible", "linux", "bash", "git", "github actions",
+    # Data & ML
+    "machine learning", "deep learning", "tensorflow", "pytorch", "scikit-learn", "pandas",
+    "numpy", "matplotlib", "seaborn", "jupyter", "kaggle", "data science", "nlp", "computer vision",
+    "spark", "hadoop", "hive", "etl",
+    # Tools
+    "jira", "slack", "postman", "vercel", "netlify", "heroku", "railway", "notion",
+    # Mobile
+    "react native", "flutter", "dart", "swift", "kotlin",
+    # Testing
+    "jest", "pytest", "mocha", "jasmine", "cypress", "selenium", "testng",
+    # Design
+    "ui/ux design", "user research", "wireframing", "prototyping", "design systems",
+    "usability testing",
+    # Data Tools
+    "power bi", "tableau", "excel", "r", "stata",
+    # Other
+    "rest api", "graphql", "websockets", "microservices", "agile", "scrum",
+    "solid principles", "design patterns", "oop", "oauth", "jwt", "ssl", "encryption",
+    "git", "grpc", "protobuf", "groovy", "gradle", "maven",
+}
+
+def normalize_skill(skill: str) -> str:
+    """Normalize skill: lowercase, remove extra spaces, check aliases."""
+    normalized = skill.lower().strip()
+    # Remove common suffixes that don't add meaning
+    normalized = re.sub(r'\s+(programming|development|development|engineer|engineer|developer)', '', normalized)
+    # Replace common abbreviations
+    abbreviations = {
+        'ml': 'machine learning',
+        'ai': 'artificial intelligence',
+        'nlp': 'natural language processing',
+        'dl': 'deep learning',
+        'js': 'javascript',
+        'ts': 'typescript',
+        'css3': 'css',
+        'html5': 'html',
+        'ux': 'ui/ux design',
+        'ui': 'ui/ux design',
+        'ds': 'data science',
+        'api': 'rest api',
+        'cicd': 'ci/cd',
+        'react.js': 'react',
+        'reactjs': 'react',
+        'node.js': 'node.js',
+        'nodejs': 'node.js',
+        'vue.js': 'vue',
+        'vuejs': 'vue',
+        'tf': 'tensorflow',
+        'sklearn': 'scikit-learn',
+    }
+    if normalized in abbreviations:
+        normalized = abbreviations[normalized]
+    return normalized
+
+def similarity(a: str, b: str) -> float:
+    """Calculate similarity between two strings (0-1)."""
+    return SequenceMatcher(None, a, b).ratio()
+
+def is_valid_skill(skill: str) -> bool:
+    """Check if extracted skill is actually a valid tech skill."""
+    normalized = normalize_skill(skill)
+    
+    # Direct match
+    if normalized in VALID_SKILLS:
+        return True
+    
+    # Fuzzy match (80%+ similarity)
+    for valid_skill in VALID_SKILLS:
+        if similarity(normalized, valid_skill) > 0.80:
+            return True
+    
+    # Reject if it's too generic or looks like a word, not a skill
+    reject_patterns = [
+        r'^(and|or|the|is|are|was|were|been|be|have|has|had|do|does|did|can|could|would|should|may|might|must|will|shall|using|used|include|including|such|etc|e\.g|i\.e)$',
+        r'^(with|for|from|to|in|on|at|by|up|down)$',
+        r'^(a|an|all|any|some|no|my|your|his|her|its|our|their)$',
+        r'^[a-z]$',  # single letters
+        r'^\d+',  # starts with number
+    ]
+    normalized_clean = normalized.strip()
+    for pattern in reject_patterns:
+        if re.match(pattern, normalized_clean):
+            return False
+    
+    return False
+
+def filter_and_validate_skills(extracted_skills: list) -> list:
+    """Filter extracted skills to keep only valid ones, remove duplicates."""
+    validated = []
+    seen = set()
+    
+    for skill in extracted_skills:
+        if not skill or not isinstance(skill, str):
+            continue
+        
+        normalized = normalize_skill(skill)
+        
+        # Skip if already seen
+        if normalized in seen:
+            continue
+        
+        # Check if valid
+        if is_valid_skill(skill):
+            seen.add(normalized)
+            # Return the skill as it was in VALID_SKILLS (proper capitalization)
+            for valid_skill in VALID_SKILLS:
+                if normalize_skill(valid_skill) == normalized:
+                    validated.append(valid_skill.title() if valid_skill not in ['api', 'ui/ux design', 'rest api', 'c#', 'asp.net'] else valid_skill)
+                    break
+            else:
+                # If not in VALID_SKILLS but passed fuzzy match, add original
+                validated.append(skill)
+    
+    return validated
 
 # Real course links per skill
 COURSE_LINKS = {
@@ -31,18 +161,6 @@ COURSE_LINKS = {
     "css": [
         {"name": "CSS Full Course", "platform": "YouTube - freeCodeCamp", "url": "https://www.youtube.com/watch?v=1Rs2ND1ryYc", "duration": "11 hrs", "price": "Free"},
         {"name": "CSS Grid & Flexbox for Responsive Layouts", "platform": "Udemy", "url": "https://www.udemy.com/course/css-grid-flexbox/", "duration": "5 hrs", "price": "Paid"},
-    ],
-    "adobe xd": [
-        {"name": "Adobe XD Tutorial for Beginners", "platform": "YouTube - DesignCourse", "url": "https://www.youtube.com/watch?v=3aOU9MbITlM", "duration": "2 hrs", "price": "Free"},
-        {"name": "Adobe XD: UI/UX Design", "platform": "Udemy", "url": "https://www.udemy.com/course/adobe-xd-design/", "duration": "9 hrs", "price": "Paid"},
-    ],
-    "usability testing": [
-        {"name": "Usability Testing – How to Do It Right", "platform": "Interaction Design Foundation", "url": "https://www.interaction-design.org/courses/conducting-usability-testing", "duration": "8 hrs", "price": "Free Trial"},
-        {"name": "UX Usability Testing", "platform": "YouTube - NNGroup", "url": "https://www.youtube.com/watch?v=kX7Ef6Pq4cs", "duration": "1 hr", "price": "Free"},
-    ],
-    "design systems": [
-        {"name": "Design Systems with Figma", "platform": "Udemy", "url": "https://www.udemy.com/course/design-systems-in-figma/", "duration": "6 hrs", "price": "Paid"},
-        {"name": "Building Design Systems", "platform": "YouTube - Malewicz", "url": "https://www.youtube.com/watch?v=wc5krC28ynQ", "duration": "1 hr", "price": "Free"},
     ],
     "python": [
         {"name": "Python for Everybody", "platform": "Coursera", "url": "https://www.coursera.org/specializations/python", "duration": "30 hrs", "price": "Free Audit"},
@@ -74,7 +192,7 @@ ROADMAP_TEMPLATES = {
     "UI/UX Designer": [
         {"phase": "Week 1-2: Design Foundations", "focus": "Core UX principles, design thinking, user research basics", "skills_category": ["user research", "wireframing", "prototyping"]},
         {"phase": "Week 3-4: Tool Mastery", "focus": "Master Figma, Adobe XD workflows, component libraries", "skills_category": ["figma", "adobe xd", "design systems"]},
-        {"phase": "Week 5-6: Visual & Interaction Design", "focus": "CSS for designers, micro-interactions, usability testing", "skills_category": ["css", "usability testing", "micro interactions"]},
+        {"phase": "Week 5-6: Visual & Interaction Design", "focus": "CSS for designers, micro-interactions, usability testing", "skills_category": ["css", "usability testing"]},
         {"phase": "Week 7-8: Portfolio & Practice", "focus": "Build 2-3 case studies, conduct usability tests, prepare portfolio", "skills_category": []},
     ],
     "Data Analyst": [
@@ -103,23 +221,19 @@ ROADMAP_TEMPLATES = {
     ],
 }
 
-
 def get_course_links(skill: str):
     """Return course links for a skill, with fallback search links."""
     key = skill.lower().strip()
     if key in COURSE_LINKS:
         return COURSE_LINKS[key]
-    # Partial match
     for k, v in COURSE_LINKS.items():
         if k in key or key in k:
             return v
-    # Generic fallback with search URLs
     encoded = skill.replace(" ", "+")
     return [
         {"name": f"{skill} - Full Course", "platform": "YouTube", "url": f"https://www.youtube.com/results?search_query={encoded}+tutorial", "duration": "Varies", "price": "Free"},
         {"name": f"Learn {skill}", "platform": "Udemy", "url": f"https://www.udemy.com/courses/search/?q={encoded}", "duration": "Varies", "price": "Paid"},
     ]
-
 
 def clean_name(name: str) -> str:
     if not name:
@@ -128,9 +242,8 @@ def clean_name(name: str) -> str:
         return name.replace(" ", "")
     return name.strip()
 
-
 def analyze_skills(resume_text, target_role):
-    print("=== skill_analyzer.py v8 loaded ===")
+    print("=== skill_analyzer.py v9 (FIXED) loaded ===")
 
     with open("role_skills.json") as f:
         role_skills = json.load(f)
@@ -140,8 +253,9 @@ def analyze_skills(resume_text, target_role):
     part2 = resume_text[2000:4500]
     part3 = resume_text[4500:7500]
 
-    extraction_prompt = f"""You are a resume parser. Read the ENTIRE resume below carefully. All three parts are from the SAME resume.
+    extraction_prompt = f"""You are a resume parser. Extract ONLY actual technical skills, tools, frameworks, and languages.
 
+Resume text (3 parts):
 === RESUME PART 1 ===
 {part1}
 
@@ -151,17 +265,17 @@ def analyze_skills(resume_text, target_role):
 === RESUME PART 3 ===
 {part3}
 
-Extract these fields accurately:
-- name: The candidate's full name exactly as it appears. Return as normal name like "Sahaya Varshini M J".
-- education: Full degree and institution (e.g. "B.Tech Information Technology, University College of Engineering Nagercoil")
-- skills: Every technical skill, tool, language, framework mentioned
-- projects: ONLY distinct named software/app projects like "Practiq", "StudyMate AI", "FocusTrack", "foodi.", "Peblo Notes", "Voc - AI Voice Note Summarizer". Do NOT include: URLs, .vercel/.github links, portfolio addresses, UX artifacts (timelines, case studies), or alternate names of same project.
-- internships: Company names where INTERNSHIPS specifically were completed (e.g. "Cognifyz Technologies", "Besant Technologies", "Alric Infotech", "Zoro Tech"). Internships are usually short-term, student-oriented, and explicitly labeled "Intern" or "Internship" in the resume.
-- experience: Full-time, part-time, or freelance WORK roles — NOT internships. Format each entry as "Job Title at Company Name" (e.g. "Software Engineer at XYZ Corp", "Freelance Web Developer"). If the candidate has no such roles (common for students), return an empty list. Do NOT repeat internship companies here.
-- certifications: Full certification names found anywhere in the resume (e.g. "IBM Python for Data Science", "Infosys Springboard CI/CD", "AWS Cloud Practitioner"). Look carefully through ALL parts.
+Extract these fields:
+- name: Full name exactly as written
+- education: Full degree and institution
+- skills: ONLY technical skills/tools/frameworks/languages (NOT soft skills like "communication", "teamwork", "problem-solving"). Examples: Python, React, Docker, SQL, Figma, AWS. Be specific and precise.
+- projects: Distinct named software projects only (NOT URLs or portfolio links)
+- internships: Company names where internships were completed
+- experience: Full-time/freelance roles in format "Job Title at Company" (NOT internships)
+- certifications: Full certification names
 
 Return ONLY valid JSON:
-{{"name":"Sahaya Varshini M J","education":"B.Tech IT, University College of Engineering Nagercoil","skills":["Python","React"],"projects":["Practiq","StudyMate AI"],"internships":["Cognifyz Technologies"],"experience":[],"certifications":["IBM Python for Data Science","Infosys Springboard CI/CD"]}}"""
+{{"name":"John Doe","education":"B.Tech IT, University","skills":["Python","React","SQL"],"projects":["App1","App2"],"internships":["Company1"],"experience":[],"certifications":["AWS Certified"]}}"""
 
     resume_data = {
         "name": "Candidate",
@@ -200,6 +314,12 @@ Return ONLY valid JSON:
             parsed = json.loads(response_text)
             parsed["name"] = clean_name(parsed.get("name", "Candidate"))
 
+            # FILTER & VALIDATE SKILLS: Only keep actual tech skills
+            raw_skills = parsed.get("skills", [])
+            parsed["skills"] = filter_and_validate_skills(raw_skills)
+            print(f"Raw skills ({len(raw_skills)}): {raw_skills}")
+            print(f"Validated skills ({len(parsed['skills'])}): {parsed['skills']}")
+
             # Clean projects
             url_kw = ["http", "www", ".com", ".app", ".io", ".vercel", "github", "portfolio"]
             bad_phrases = ["restaurant discovery", "customer journey", "time line", "case study", "landing page"]
@@ -211,7 +331,7 @@ Return ONLY valid JSON:
                     deduped.append(p)
             parsed["projects"] = deduped
 
-            # Make sure experience never silently collapses into internships
+            # Ensure experience doesn't repeat internships
             if "experience" not in parsed or parsed.get("experience") is None:
                 parsed["experience"] = []
             internship_names_lower = [i.lower().strip() for i in parsed.get("internships", [])]
@@ -221,7 +341,7 @@ Return ONLY valid JSON:
             ]
 
             resume_data = parsed
-            print(f"OK: name={resume_data['name']}, certs={resume_data.get('certifications')}, internships={resume_data.get('internships')}, experience={resume_data.get('experience')}")
+            print(f"OK: name={resume_data['name']}, skills={len(resume_data['skills'])}, projects={len(resume_data['projects'])}")
             break
 
         except Exception as e:
@@ -238,30 +358,42 @@ Return ONLY valid JSON:
                 traceback.print_exc()
                 break
 
-    # Skill gap
-    candidate_lower = [s.lower() for s in resume_data.get("skills", [])]
+    # IMPROVED SKILL MATCHING: Normalize both candidate and required skills
+    candidate_skills_normalized = [normalize_skill(s) for s in resume_data.get("skills", [])]
     missing_skills, matched_skills = [], []
+    
     for req in required_skills:
-        if req.lower() in candidate_lower:
+        req_normalized = normalize_skill(req)
+        matched = False
+        
+        # Check for direct normalized match
+        if req_normalized in candidate_skills_normalized:
+            matched = True
+        else:
+            # Check for fuzzy match
+            for cand_norm in candidate_skills_normalized:
+                if similarity(req_normalized, cand_norm) > 0.80:
+                    matched = True
+                    break
+        
+        if matched:
             matched_skills.append(req)
         else:
             missing_skills.append(req)
 
     readiness = int((len(matched_skills) / len(required_skills)) * 100) if required_skills else 0
 
-    # Learning recommendations with real links
+    # Learning recommendations
     learning_recommendations = []
     for skill in missing_skills[:6]:
         courses = get_course_links(skill)
         learning_recommendations.append({"skill": skill, "courses": courses})
 
-    # Role-specific roadmap with missing skills injected
+    # Roadmap template
     roadmap_template = ROADMAP_TEMPLATES.get(target_role, [])
     if roadmap_template:
         preparation_roadmap = []
-        missing_lower = [s.lower() for s in missing_skills]
         for phase in roadmap_template:
-            # Find missing skills that match this phase's category
             phase_missing = [
                 s for s in missing_skills
                 if any(cat in s.lower() or s.lower() in cat for cat in phase["skills_category"])
@@ -272,7 +404,6 @@ Return ONLY valid JSON:
                 "skills_to_learn": phase_missing if phase_missing else [],
             })
     else:
-        # Generic fallback roadmap
         chunk = max(1, len(missing_skills) // 3)
         preparation_roadmap = []
         phases = [
@@ -300,5 +431,10 @@ Return ONLY valid JSON:
         "preparation_roadmap": preparation_roadmap
     }
 
-    print(f"Final Profile keys: {list(profile.keys())}")
+    print(f"Final: {len(matched_skills)}/{len(required_skills)} matched | Readiness: {readiness}%")
     return profile
+
+def similarity(a: str, b: str) -> float:
+    """Calculate string similarity (0-1)."""
+    from difflib import SequenceMatcher
+    return SequenceMatcher(None, a, b).ratio()
