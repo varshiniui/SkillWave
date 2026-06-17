@@ -373,7 +373,12 @@ Return ONLY valid JSON:
     # IMPROVED SKILL MATCHING: Normalize both candidate and required skills
     candidate_skills_normalized = [normalize_skill(s) for s in resume_data.get("skills", [])]
     missing_skills, matched_skills = [], []
-    
+
+    DEPLOYMENT_INDICATORS = {
+        "vercel", "railway", "netlify", "render", "heroku",
+        "docker", "kubernetes", "aws", "azure", "google cloud", "ci/cd"
+    }
+
     for req in required_skills:
         req_normalized = normalize_skill(req)
         matched = False
@@ -387,6 +392,11 @@ Return ONLY valid JSON:
                 if similarity(req_normalized, cand_norm) > 0.80:
                     matched = True
                     break
+
+        # Special case: "Deployment" counts as matched if candidate lists any deployment platform
+        if not matched and req_normalized == "deployment":
+            if any(plat in candidate_skills_normalized for plat in DEPLOYMENT_INDICATORS):
+                matched = True
         
         if matched:
             matched_skills.append(req)
