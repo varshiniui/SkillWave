@@ -48,5 +48,15 @@
     "Jenkins",
     "Git",
     "Terraform"
-  ]
+  ],
+  "Frontend Developer": ["HTML", "CSS", "JavaScript", "React", "TypeScript", "Git", "Figma", "REST APIs", "Responsive Design", "Testing"],
+"Backend Developer": ["Python/Node.js", "REST APIs", "SQL", "PostgreSQL", "Authentication", "Docker", "Git", "System Design", "Redis", "Testing"],
+"Full Stack Developer": ["React", "Node.js", "SQL", "MongoDB", "REST APIs", "Docker", "Git", "TypeScript", "Authentication", "Deployment"],
+"Data Scientist": ["Python", "Machine Learning", "Statistics", "Pandas", "NumPy", "Matplotlib", "Scikit-learn", "SQL", "Deep Learning", "Data Cleaning"],
+"AI/ML Engineer": ["Python", "TensorFlow", "PyTorch", "NLP", "Computer Vision", "MLOps", "Docker", "SQL", "LLMs", "Model Deployment"],
+"Cloud Engineer": ["AWS", "Azure", "GCP", "Terraform", "Docker", "Kubernetes", "CI/CD", "Linux", "Networking", "Security"],
+"Android Developer": ["Java", "Kotlin", "Android Studio", "REST APIs", "Firebase", "Git", "SQL", "UI Design", "Testing", "Play Store Deployment"],
+"Flutter Developer": ["Flutter", "Dart", "Firebase", "REST APIs", "State Management", "Git", "UI Design", "Android/iOS", "Testing", "Animations"],
+"Cybersecurity Analyst": ["Network Security", "Linux", "Python", "SIEM", "Penetration Testing", "Firewalls", "Cryptography", "Incident Response", "Compliance", "Vulnerability Assessment"],
+"Business Analyst": ["SQL", "Excel", "Power BI", "Tableau", "Requirements Gathering", "Process Mapping", "Stakeholder Communication", "Agile", "Data Analysis", "Documentation"]
 }

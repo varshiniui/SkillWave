@@ -1,26 +1,34 @@
 import streamlit as st
 import requests
-import PyPDF2
 import io
-import json
+import re
+import plotly.graph_objects as go
+from resume_parser import extract_resume_text
 
 st.set_page_config(page_title="SkillWave", layout="wide", initial_sidebar_state="expanded")
 
-# Custom CSS for professional styling
 st.markdown("""
     <style>
     .main-header {
         text-align: center;
-        color: #1f77b4;
+        color: #00BCD4;
         font-size: 2.5em;
         font-weight: bold;
         margin-bottom: 10px;
     }
     .sub-header {
         text-align: center;
-        color: #555;
+        color: #666;
         font-size: 1.1em;
         margin-bottom: 30px;
+    }
+    .section-tag {
+        background-color: #e8f4fd;
+        border-left: 4px solid #00BCD4;
+        padding: 8px 12px;
+        margin: 4px 0;
+        border-radius: 4px;
+        font-size: 0.95em;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -30,36 +38,97 @@ st.markdown('<div class="sub-header">AI-Powered Resume Analyzer & Interview Prep
 
 API_URL = "http://localhost:5000"
 
-# Initialize session state
+
+def render_readiness_gauge(readiness):
+    """Render readiness score as a circular gauge instead of a plain number metric."""
+    if readiness >= 70:
+        bar_color = "#00BCD4"
+    elif readiness >= 40:
+        bar_color = "#FF9800"
+    else:
+        bar_color = "#F44336"
+
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=readiness,
+        number={'suffix': "%", 'font': {'size': 32}},
+        gauge={
+            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "#999999"},
+            'bar': {'color': bar_color, 'thickness': 0.3},
+            'bgcolor': "white",
+            'borderwidth': 0,
+            'steps': [
+                {'range': [0, 40], 'color': '#fdecea'},
+                {'range': [40, 70], 'color': '#fff3e0'},
+                {'range': [70, 100], 'color': '#e0f7fa'},
+            ],
+        },
+    ))
+    fig.update_layout(
+        height=200,
+        margin=dict(l=20, r=20, t=30, b=10),
+        paper_bgcolor="rgba(0,0,0,0)",
+        font={'color': "#333333", 'family': "Arial"}
+    )
+    return fig
+
+
+def is_resume_text_valid(text, min_words=30, min_alpha_ratio=0.35):
+    """
+    Heuristic check to catch scanned/image-based PDFs where text extraction
+    returns empty, too short, or garbled (mostly non-alphabetic) content.
+    Returns (is_valid, error_message).
+    
+    min_alpha_ratio=0.35 allows formatted resumes with tables, symbols, and special characters.
+    Still catches truly scanned/image PDFs which typically have much lower ratios (<0.20).
+    """
+    if not text or not text.strip():
+        return False, ("No text could be extracted from this PDF. It looks like a scanned "
+                        "or image-based document. Please upload a PDF exported directly from "
+                        "Word, Google Docs, or a similar tool, with selectable text.")
+
+    words = text.split()
+    if len(words) < min_words:
+        return False, ("Very little readable text was found in this PDF. It may be a scanned "
+                        "image rather than a text-based document. Please upload a PDF with "
+                        "selectable text.")
+
+    alpha_chars = len(re.findall(r"[A-Za-z]", text))
+    total_chars = len(text.strip())
+    alpha_ratio = alpha_chars / total_chars if total_chars else 0
+
+    if alpha_ratio < min_alpha_ratio:
+        return False, ("The extracted text looks garbled or mostly non-alphabetic. This usually "
+                        "happens with scanned or image-based PDFs. Please upload a text-based PDF.")
+
+    return True, ""
+
+
 if 'profile' not in st.session_state:
     st.session_state.profile = None
 if 'questions' not in st.session_state:
     st.session_state.questions = None
-if 'resume_text' not in st.session_state:
-    st.session_state.resume_text = None
+if 'structured_questions' not in st.session_state:
+    st.session_state.structured_questions = None
+if 'target_role' not in st.session_state:
+    st.session_state.target_role = None
 
 # Sidebar
 with st.sidebar:
     st.header("Resume Analysis")
-    
-    # Get available roles
+
     try:
         roles_response = requests.get(f"{API_URL}/roles", timeout=5)
         roles_response.raise_for_status()
         available_roles = roles_response.json().get("roles", [])
     except Exception as e:
-        st.error(f"Cannot connect to backend. Make sure Flask server is running on {API_URL}")
+        st.error(f"Cannot connect to backend. Ensure Flask server is running on {API_URL}")
         st.stop()
-    
-    # File upload
+
     resume_file = st.file_uploader("Upload Resume (PDF)", type="pdf")
-    
-    # Target role selection
     target_role = st.selectbox("Select Target Role", available_roles)
-    
     st.divider()
-    
-    # Analyze button
+
     if st.button("Analyze Resume", use_container_width=True, type="primary"):
         if not resume_file:
             st.error("Please upload a resume PDF")
@@ -68,89 +137,79 @@ with st.sidebar:
         else:
             with st.spinner("Analyzing resume..."):
                 try:
-                    # Extract text from PDF using pdfplumber
-                    import pdfplumber
-                    resume_text = ""
-                    with pdfplumber.open(io.BytesIO(resume_file.read())) as pdf:
-                        for page in pdf.pages:
-                            page_text = page.extract_text()
-                            if page_text:
-                                resume_text += page_text + "\n"
-                    
-                    st.session_state.resume_text = resume_text.strip()
-                    
-                    if len(st.session_state.resume_text) < 10:
-                        st.error("Resume text is too short. Please ensure the PDF contains readable text.")
+                    resume_text = extract_resume_text(resume_file)
+
+                    is_valid, validation_msg = is_resume_text_valid(resume_text)
+                    if not is_valid:
+                        st.error(validation_msg)
                         st.stop()
-                    
-                    # Analyze resume
+
+                    print(f"Extracted resume text length: {len(resume_text)}")
+
                     response = requests.post(
                         f"{API_URL}/analyze",
-                        json={
-                            "resume_text": st.session_state.resume_text,
-                            "target_role": target_role
-                        },
-                        timeout=30
+                        json={"resume_text": resume_text, "target_role": target_role},
+                        timeout=60
                     )
                     response.raise_for_status()
                     st.session_state.profile = response.json()
-                    
-                    # Generate questions
+                    st.session_state.target_role = target_role
+
                     questions_response = requests.post(
                         f"{API_URL}/questions",
-                        json={
-                            "profile": st.session_state.profile,
-                            "target_role": target_role
-                        },
-                        timeout=30
+                        json={"profile": st.session_state.profile, "target_role": target_role},
+                        timeout=60
                     )
                     questions_response.raise_for_status()
-                    st.session_state.questions = questions_response.json().get("questions", [])
-                    
+                    q_data = questions_response.json()
+                    st.session_state.questions = q_data.get("questions", [])
+                    st.session_state.structured_questions = q_data.get("structured", {})
+
                     st.success("Analysis complete!")
                     st.rerun()
-                    
+
                 except requests.exceptions.ConnectionError:
                     st.error(f"Cannot connect to backend at {API_URL}")
                 except requests.exceptions.Timeout:
                     st.error("Request timeout. Backend took too long to respond.")
                 except requests.exceptions.HTTPError as e:
-                    error_msg = e.response.json().get("error", str(e))
+                    try:
+                        error_msg = e.response.json().get("error", str(e))
+                    except:
+                        error_msg = str(e)
                     st.error(f"Error: {error_msg}")
                 except Exception as e:
                     st.error(f"Unexpected error: {str(e)}")
 
-# Main content area
+# Main content
 if st.session_state.profile:
     profile = st.session_state.profile
     questions = st.session_state.questions
-    
-    # Tabs for different sections
+    structured_questions = st.session_state.structured_questions or {}
+    target_role = st.session_state.target_role
+
     tab1, tab2, tab3, tab4 = st.tabs(["Profile", "Skill Analysis", "Interview Questions", "Recommendations"])
-    
+
     with tab1:
         st.subheader("Candidate Profile Summary")
-        
-        # Display profile summary in premium custom-styled cards to prevent text truncation
-        st.markdown(f"""
-            <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; width: 100%;">
-                <div style="flex: 1 1 250px; background-color: #f8f9fa; border: 1px solid #e9ecef; border-left: 5px solid #1f77b4; padding: 16px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                    <div style="font-size: 0.85em; color: #6c757d; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Candidate Name</div>
-                    <div style="font-size: 1.4em; font-weight: 700; color: #212529; margin-top: 6px; word-break: break-word;">{profile.get('name', 'N/A')}</div>
-                </div>
-                <div style="flex: 1.5 1 350px; background-color: #f8f9fa; border: 1px solid #e9ecef; border-left: 5px solid #2ca02c; padding: 16px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                    <div style="font-size: 0.85em; color: #6c757d; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Education</div>
-                    <div style="font-size: 1.3em; font-weight: 600; color: #212529; margin-top: 6px; word-break: break-word; line-height: 1.4;">{profile.get('education', 'N/A')}</div>
-                </div>
-                <div style="flex: 1 1 200px; background-color: #f8f9fa; border: 1px solid #e9ecef; border-left: 5px solid #ff7f0e; padding: 16px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                    <div style="font-size: 0.85em; color: #6c757d; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Readiness Score</div>
-                    <div style="font-size: 2.2em; font-weight: 800; color: #ff7f0e; line-height: 1.1; margin-top: 2px;">{profile.get('readiness', 0)}%</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-        
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown("**Name**")
+            st.markdown(f"### {profile.get('name', 'N/A')}")
+        with col2:
+            st.markdown("**Education**")
+            st.markdown(f"#### {profile.get('education', 'N/A')}")
+        with col3:
+            st.markdown("**Readiness Score**")
+            st.plotly_chart(
+                render_readiness_gauge(profile.get('readiness', 0)),
+                use_container_width=True,
+                config={'displayModeBar': False}
+            )
+
         st.divider()
-        
+
         col1, col2 = st.columns(2)
         with col1:
             st.subheader("Skills Found")
@@ -160,16 +219,7 @@ if st.session_state.profile:
                     st.write(f"• {skill}")
             else:
                 st.info("No skills extracted")
-            
-            st.divider()
-            st.subheader("Certifications")
-            certs = profile.get("certifications", [])
-            if certs:
-                for cert in certs:
-                    st.write(f"📜 {cert}")
-            else:
-                st.info("No certifications found")
-        
+
         with col2:
             st.subheader("Projects")
             projects = profile.get("projects", [])
@@ -178,196 +228,233 @@ if st.session_state.profile:
                     st.write(f"• {project}")
             else:
                 st.info("No projects found")
-                
-            st.divider()
-            st.subheader("Experience / Internships")
-            experience = profile.get("experience", [])
-            if experience:
-                for exp in experience:
-                    st.write(f"💼 {exp}")
+
+        st.divider()
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.subheader("Internships")
+            internships = profile.get("internships", [])
+            if internships:
+                for internship in internships:
+                    st.markdown(f'<div class="section-tag">{internship}</div>', unsafe_allow_html=True)
             else:
-                st.info("No work experience listed")
-    
+                st.info("No internships found")
+
+        with col2:
+            st.subheader("Certifications")
+            certifications = profile.get("certifications", [])
+            if certifications:
+                for cert in certifications:
+                    st.markdown(f'<div class="section-tag">{cert}</div>', unsafe_allow_html=True)
+            else:
+                st.info("No certifications found")
+
+        st.divider()
+
+        st.subheader("Work Experience")
+        experience = profile.get("experience", [])
+        if experience:
+            for exp in experience:
+                st.markdown(f'<div class="section-tag">{exp}</div>', unsafe_allow_html=True)
+        else:
+            st.info("No full-time or freelance work experience found — common for students and entry-level candidates.")
+
     with tab2:
         st.subheader("Skill Gap Analysis")
-        
+
+        readiness = profile.get('readiness', 0)
+        bar_color = "#00BCD4" if readiness >= 70 else "#FF9800" if readiness >= 40 else "#F44336"
+        st.markdown(f"### Overall Readiness: **{readiness}%**")
+        st.markdown(
+            f"<div style='background:#e0e0e0;border-radius:10px;height:24px;width:100%;'>"
+            f"<div style='background:{bar_color};width:{readiness}%;height:24px;border-radius:10px;"
+            f"display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:13px;'>"
+            f"{readiness}%</div></div>",
+            unsafe_allow_html=True
+        )
+        st.write("")
+
         col1, col2 = st.columns(2)
-        
         with col1:
             st.metric("Your Skills", len(profile.get("skills", [])))
             st.metric("Required Skills", len(profile.get("required_skills", [])))
-        
         with col2:
             st.metric("Missing Skills", len(profile.get("missing_skills", [])))
-            st.metric("Readiness", f"{profile.get('readiness', 0)}%")
-        
+            st.metric("Matched Skills", len(profile.get("matched_skills", [])))
+
         st.divider()
-        
-        col1, col2, col3 = st.columns(3)
-        
+
+        col1, col2 = st.columns(2)
         with col1:
-            st.subheader("Extracted Skills")
-            for skill in profile.get("skills", []):
-                st.write(f"• {skill}")
-        
-        with col2:
-            st.subheader("Matched Skills")
-            matched_skills = profile.get("matched_skills", [])
-            if matched_skills:
-                for skill in matched_skills:
-                    st.write(f"🟢 {skill}")
+            st.subheader("Your Matched Skills")
+            matched = profile.get("matched_skills", [])
+            if matched:
+                for skill in matched:
+                    st.write(f"✓ {skill}")
             else:
-                st.info("No matching skills found")
-        
-        with col3:
-            st.subheader("Skills You Need")
-            for skill in profile.get("missing_skills", []):
-                st.write(f"🔴 {skill}")
-    
+                st.info("No matched skills")
+
+        with col2:
+            st.subheader("Skills to Develop")
+            missing = profile.get("missing_skills", [])
+            if missing:
+                for skill in missing:
+                    st.write(f"⚠ {skill}")
+            else:
+                st.success("You have all required skills!")
+
     with tab3:
         st.subheader("Personalized Interview Questions")
 
-        import re
+        tech_q = structured_questions.get("technical", [])
+        proj_q = structured_questions.get("project", [])
+        scene_q = structured_questions.get("scenario", [])
 
-        # Helper: strip leading number/bullet from a question string
-        def clean_question(q):
-            q = re.sub(r"^\d+[\.\s\-]+", "", q).strip()
-            q = re.sub(r"^[\-\*\s•]+", "", q).strip()
-            return q
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Total Questions", len(questions))
+        col2.metric("Technical", len(tech_q))
+        col3.metric("Project-Based", len(proj_q))
+        col4.metric("Scenario", len(scene_q))
+        st.divider()
 
-        cleaned = [clean_question(q) for q in questions if q.strip()]
-        total = len(cleaned)
+        if structured_questions:
+            qtab1, qtab2, qtab3 = st.tabs([
+                f"Technical ({len(tech_q)})",
+                f"Project-Based ({len(proj_q)})",
+                f"Scenario-Based ({len(scene_q)})"
+            ])
 
-        st.info(f"Total Questions Generated: **{total}** — grouped into 5 categories below.")
-
-        # Define 5 categories mapped to index slices (based on 30-question structure)
-        categories = [
-            ("🔧 Technical Questions",         "Tests depth of knowledge in role concepts and your matched skills.",      cleaned[0:10]),
-            ("📁 Project-Based Questions",      "Questions about your actual projects by name.",                           cleaned[10:15]),
-            ("💼 Experience-Based Questions",   "Questions about your internships and work experience.",                   cleaned[15:20]),
-            ("📚 Missing Skill Questions",      "Explores your familiarity with skills you have yet to develop.",          cleaned[20:25]),
-            ("🎯 Scenario / Behavioural",       "Real-world situational questions using STAR format.",                    cleaned[25:30]),
-        ]
-
-        global_idx = 1
-        for cat_title, cat_desc, cat_questions in categories:
-            if not cat_questions:
-                continue
-            with st.expander(f"{cat_title}  ({len(cat_questions)} questions)", expanded=False):
-                st.caption(cat_desc)
+            with qtab1:
+                st.markdown("*Questions based on your technical skills and knowledge gaps.*")
                 st.write("")
-                for q in cat_questions:
-                    st.markdown(
-                        f"""<div style="padding: 10px 14px; margin-bottom: 8px; border-left: 4px solid #1f77b4;
-                        background:#f8f9fa; border-radius: 4px; font-size: 0.97em; color: #212529;">
-                        <b>{global_idx}.</b> {q}</div>""",
-                        unsafe_allow_html=True
-                    )
-                    global_idx += 1
-    
+                for idx, q in enumerate(tech_q, 1):
+                    st.markdown(f"**Q{idx}.** {q}")
+                    st.divider()
+
+            with qtab2:
+                st.markdown("*Questions based on your actual projects and work experience.*")
+                st.write("")
+                for idx, q in enumerate(proj_q, 1):
+                    st.markdown(f"**Q{idx}.** {q}")
+                    st.divider()
+
+            with qtab3:
+                st.markdown("*Situational questions to test how you handle real workplace scenarios.*")
+                st.write("")
+                for idx, q in enumerate(scene_q, 1):
+                    st.markdown(f"**Q{idx}.** {q}")
+                    st.divider()
+        else:
+            for idx, q in enumerate(questions, 1):
+                st.markdown(f"**{idx}.** {q}")
+                st.divider()
+
     with tab4:
-        st.subheader("Learning Recommendations")
+        st.subheader("Learning Recommendations & Preparation Roadmap")
+
         recommendations = profile.get("learning_recommendations", [])
         roadmap = profile.get("preparation_roadmap", [])
-        
+
         if recommendations:
-            st.markdown("### Recommended Courses & Resources")
+            st.markdown("### Recommended Courses for Missing Skills")
             for rec in recommendations:
-                skill_name = rec.get("skill", "N/A")
-                courses = rec.get("courses", [])
-                
-                st.markdown(f"#### 📚 {skill_name}")
-                if courses:
-                    for course in courses:
-                        name = course.get("name", "N/A")
-                        platform = course.get("platform", "N/A")
-                        url = course.get("url", "#")
-                        duration = course.get("duration", "N/A")
-                        price = course.get("price", "N/A")
-                        st.markdown(f"- **[{name}]({url})** on *{platform}* | ⏳ Duration: {duration} | 💰 Price: {price}")
+                if isinstance(rec, dict):
+                    skill = rec.get("skill", "")
+                    courses = rec.get("courses", [])
+                    with st.expander(f"{skill}", expanded=True):
+                        for course in courses:
+                            name = course.get("name", "")
+                            platform = course.get("platform", "")
+                            url = course.get("url", "")
+                            duration = course.get("duration", "")
+                            price = course.get("price", "")
+                            price_label = "FREE" if "Free" in price else "PAID"
+                            if url:
+                                st.markdown(
+                                    f"**[{name}]({url})**  \n"
+                                    f"&nbsp;&nbsp;&nbsp;{platform} &nbsp;|&nbsp; {duration} &nbsp;|&nbsp; {price_label}"
+                                )
+                            else:
+                                st.markdown(f"**{name}** — {platform} | {duration} | {price_label}")
+                            st.write("")
                 else:
-                    # Provide a fallback search url if no predefined courses are found
-                    search_query = f"{skill_name} course".replace(" ", "+")
-                    coursera_url = f"https://www.coursera.org/search?query={search_query}"
-                    udemy_url = f"https://www.udemy.com/courses/search/?q={search_query}"
-                    youtube_url = f"https://www.youtube.com/results?search_query={search_query}"
-                    st.write("No specific courses in database. Try searching:")
-                    st.markdown(f"- [Search on Coursera]({coursera_url}) | [Search on Udemy]({udemy_url}) | [Search on YouTube]({youtube_url})")
+                    st.info(str(rec))
         else:
-            st.info("No recommendations available")
-        
+            st.success("You already have all the required skills!")
+
         st.divider()
-        
+
         if roadmap:
             st.markdown("### Preparation Roadmap")
             for idx, step in enumerate(roadmap, 1):
-                phase = step.get("phase", f"Phase {idx}")
-                skills_list = step.get("skills", [])
-                skills = ", ".join(skills_list)
-                resources = step.get("recommended_resources", [])
-                
-                with st.expander(f"📅 **{phase}**: Focus on {skills}", expanded=(idx == 1)):
-                    st.markdown(f"**Skills to study:** {skills}")
-                    if resources:
-                        st.markdown("**Suggested Quick Resources:**")
-                        for res in resources:
-                            name = res.get("name", "N/A")
-                            url = res.get("url", "#")
-                            platform = res.get("platform", "N/A")
-                            st.markdown(f"- **[{name}]({url})** on *{platform}*")
-                    else:
-                        st.write("Use the recommended search links under Courses for these skills.")
+                if isinstance(step, dict):
+                    phase = step.get("phase", f"Phase {idx}")
+                    focus = step.get("focus", "")
+                    skills_to_learn = step.get("skills_to_learn", step.get("skills", []))
+                    col_num, col_content = st.columns([0.08, 0.92])
+                    with col_num:
+                        st.markdown(
+                            f"<div style='background:#00BCD4;color:white;border-radius:50%;"
+                            f"width:36px;height:36px;display:flex;align-items:center;"
+                            f"justify-content:center;font-weight:bold;'>{idx}</div>",
+                            unsafe_allow_html=True
+                        )
+                    with col_content:
+                        st.markdown(f"**{phase}**")
+                        if focus:
+                            st.markdown(f"_{focus}_")
+                        if skills_to_learn:
+                            st.markdown("Skills to focus on: " + " ".join([f"`{s}`" for s in skills_to_learn]))
+                    st.write("")
         else:
             st.info("No roadmap available")
-    
-    # Export section
+
     st.divider()
     st.subheader("Export Results")
-    col1, col2, col3 = st.columns(3)
-    
-    # Generate PDF and CSV bytes
-    try:
-        import sys
-        import os
-        sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backend")))
-        from report_generator import generate_pdf_report, generate_csv_report
-        
-        pdf_bytes = generate_pdf_report(profile, questions, target_role)
-        csv_bytes = generate_csv_report(profile, questions, target_role)
-    except Exception as e:
-        st.error(f"Error loading report generators: {e}")
-        pdf_bytes = None
-        csv_bytes = None
-        
+    col1, col2 = st.columns(2)
+
+    # Generate custom PDF filename
+    candidate_name = profile.get("name", "Candidate").replace(" ", "_")
+    role_name = target_role.replace(" ", "_")
+    pdf_filename = f"SkillWave_{candidate_name}_{role_name}.pdf"
+    csv_filename = f"SkillWave_{candidate_name}_{role_name}.csv"
+
     with col1:
-        if pdf_bytes:
-            st.download_button(
-                label="📥 Download PDF Report",
-                data=pdf_bytes,
-                file_name=f"skillwave_report_{profile.get('name', 'candidate').replace(' ', '_')}.pdf",
-                mime="application/pdf",
-                use_container_width=True
-            )
-            
+        if st.button("Download PDF Report", use_container_width=True):
+            try:
+                pdf_response = requests.post(
+                    f"{API_URL}/export/pdf",
+                    json={"profile": profile, "questions": questions, "target_role": target_role},
+                    timeout=30
+                )
+                pdf_response.raise_for_status()
+                st.download_button(
+                    label="Click to download PDF",
+                    data=pdf_response.content,
+                    file_name=pdf_filename,
+                    mime="application/pdf"
+                )
+            except Exception as e:
+                st.error(f"Error generating PDF: {str(e)}")
+
     with col2:
-        if csv_bytes:
-            st.download_button(
-                label="📊 Download CSV Report",
-                data=csv_bytes,
-                file_name=f"skillwave_report_{profile.get('name', 'candidate').replace(' ', '_')}.csv",
-                mime="text/csv",
-                use_container_width=True
-            )
-            
-    with col3:
-        json_str = json.dumps(profile, indent=2)
-        st.download_button(
-            label="⚙️ Download JSON Data",
-            data=json_str,
-            file_name="skillwave_analysis.json",
-            mime="application/json",
-            use_container_width=True
-        )
+        if st.button("Download CSV Report", use_container_width=True):
+            try:
+                csv_response = requests.post(
+                    f"{API_URL}/export/csv",
+                    json={"profile": profile, "questions": questions, "target_role": target_role},
+                    timeout=30
+                )
+                csv_response.raise_for_status()
+                st.download_button(
+                    label="Click to download CSV",
+                    data=csv_response.content,
+                    file_name=csv_filename,
+                    mime="text/csv"
+                )
+            except Exception as e:
+                st.error(f"Error generating CSV: {str(e)}")
 
 else:
     st.info("Please upload a resume and click 'Analyze Resume' to get started.")

@@ -1,83 +1,290 @@
 {
   "SQL": [
-    {"name": "SQL for Data Science", "platform": "Coursera", "url": "https://www.coursera.org/learn/sql-for-data-science", "duration": "4 weeks", "price": "Free"},
-    {"name": "The Complete SQL Bootcamp", "platform": "Udemy", "url": "https://www.udemy.com/course/the-complete-sql-bootcamp/", "duration": "8 hours", "price": "Paid"}
+    {
+      "name": "The Complete SQL Bootcamp",
+      "platform": "Udemy",
+      "url": "https://www.udemy.com/course/the-complete-sql-bootcamp/",
+      "duration": "9 hours",
+      "price": "$15",
+      "difficulty": "beginner"
+    },
+    {
+      "name": "SQL Tutorial for Beginners",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=HXV3zeQKqGY",
+      "duration": "4 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ],
   "Power BI": [
-    {"name": "Getting Started with Power BI", "platform": "edX", "url": "https://www.edx.org/course/analyzing-and-visualizing-data-with-power-bi", "duration": "6 weeks", "price": "Free"}
+    {
+      "name": "Power BI Desktop for Business Intelligence",
+      "platform": "Udemy",
+      "url": "https://www.udemy.com/course/power-bi-desktop/",
+      "duration": "25 hours",
+      "price": "$15",
+      "difficulty": "intermediate"
+    },
+    {
+      "name": "Microsoft Power BI Training",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=TmhQCQr_DCA",
+      "duration": "3 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ],
   "Python": [
-    {"name": "Python for Everybody", "platform": "Coursera", "url": "https://www.coursera.org/specializations/python", "duration": "8 weeks", "price": "Free"},
-    {"name": "Automate the Boring Stuff with Python", "platform": "Udemy", "url": "https://www.udemy.com/course/automate/", "duration": "12 hours", "price": "Paid"}
+    {
+      "name": "Complete Python Bootcamp",
+      "platform": "Udemy",
+      "url": "https://www.udemy.com/course/complete-python-bootcamp/",
+      "duration": "22 hours",
+      "price": "$15",
+      "difficulty": "beginner"
+    },
+    {
+      "name": "Python for Everybody",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=8DvO9M06G+0",
+      "duration": "14 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ],
   "Statistics": [
-    {"name": "Statistics for Data Science", "platform": "Coursera", "url": "https://www.coursera.org/specializations/statistics", "duration": "6 weeks", "price": "Free"}
+    {
+      "name": "Statistics for Data Analysis",
+      "platform": "Coursera",
+      "url": "https://www.coursera.org/learn/statistics-data-analysis",
+      "duration": "20 hours",
+      "price": "Free to audit",
+      "difficulty": "intermediate"
+    },
+    {
+      "name": "Statistics Fundamentals",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=xxpc-SSHF2o",
+      "duration": "10 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ],
   "Excel": [
-    {"name": "Excel Skills for Business", "platform": "Coursera", "url": "https://www.coursera.org/specializations/excel", "duration": "6 weeks", "price": "Free"}
-  ],
-  "Data Visualization": [
-    {"name": "Data Visualization with Tableau", "platform": "Coursera", "url": "https://www.coursera.org/specializations/data-visualization", "duration": "5 weeks", "price": "Free"}
-  ],
-  "Tableau": [
-    {"name": "Tableau 2020 A-Z", "platform": "Udemy", "url": "https://www.udemy.com/course/tableau10/", "duration": "10 hours", "price": "Paid"}
-  ],
-  "Google Analytics": [
-    {"name": "Google Analytics for Beginners", "platform": "Google Analytics Academy", "url": "https://analytics.google.com/analytics/academy/", "duration": "4 hours", "price": "Free"}
-  ],
-  "Machine Learning": [
-    {"name": "Machine Learning", "platform": "Coursera (Andrew Ng)", "url": "https://www.coursera.org/learn/machine-learning", "duration": "11 weeks", "price": "Free"}
-  ],
-  "Deep Learning": [
-    {"name": "Deep Learning Specialization", "platform": "Coursera", "url": "https://www.coursera.org/specializations/deep-learning", "duration": "3 months", "price": "Paid"}
+    {
+      "name": "Advanced Excel",
+      "platform": "Udemy",
+      "url": "https://www.udemy.com/course/advanced-excel-skills/",
+      "duration": "11 hours",
+      "price": "$15",
+      "difficulty": "intermediate"
+    },
+    {
+      "name": "Excel Tutorial",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=rwbho0CgqLc",
+      "duration": "7 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ],
   "Figma": [
-    {"name": "Figma UI/UX Design Essentials", "platform": "Udemy", "url": "https://www.udemy.com/course/figma-ux-ui-design-user-experience-tutorial/", "duration": "10 hours", "price": "Paid"},
-    {"name": "Introduction to Figma", "platform": "Coursera", "url": "https://www.coursera.org/learn/figma-ux-design", "duration": "2 weeks", "price": "Free"}
+    {
+      "name": "Figma UI Design Essentials",
+      "platform": "Udemy",
+      "url": "https://www.udemy.com/course/figma-design-course/",
+      "duration": "10 hours",
+      "price": "$15",
+      "difficulty": "beginner"
+    },
+    {
+      "name": "Figma Crash Course",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=nXhERnykjl8",
+      "duration": "2 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ],
   "Wireframing": [
-    {"name": "Introduction to Wireframing", "platform": "Coursera", "url": "https://www.coursera.org/learn/introduction-to-wireframing", "duration": "3 weeks", "price": "Free"}
+    {
+      "name": "UX/UI Design Fundamentals",
+      "platform": "Udemy",
+      "url": "https://www.udemy.com/course/ux-design-course/",
+      "duration": "12 hours",
+      "price": "$15",
+      "difficulty": "beginner"
+    },
+    {
+      "name": "Wireframing and Prototyping",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=qpH7-gbHgZI",
+      "duration": "3 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ],
   "User Research": [
-    {"name": "User Research and Design", "platform": "Coursera", "url": "https://www.coursera.org/learn/user-research-design", "duration": "4 weeks", "price": "Free"}
+    {
+      "name": "User Research Methods",
+      "platform": "Interaction Design Foundation",
+      "url": "https://www.interaction-design.org/courses/user-research-methods-and-best-practices",
+      "duration": "4 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    },
+    {
+      "name": "UX Research Fundamentals",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=_C-b3s_Kcn4",
+      "duration": "2 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ],
   "Prototyping": [
-    {"name": "Prototyping and Design", "platform": "Coursera", "url": "https://www.coursera.org/learn/prototyping-design", "duration": "4 weeks", "price": "Free"}
+    {
+      "name": "Interactive Prototyping with Figma",
+      "platform": "Udemy",
+      "url": "https://www.udemy.com/course/figma-prototyping/",
+      "duration": "8 hours",
+      "price": "$15",
+      "difficulty": "intermediate"
+    },
+    {
+      "name": "Prototyping Tutorial",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=6z6b1vrwd1k",
+      "duration": "1.5 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ],
   "CSS": [
-    {"name": "CSS - The Complete Guide (incl. Flexbox, Grid & Sass)", "platform": "Udemy", "url": "https://www.udemy.com/course/css-the-complete-guide-incl-flexbox-grid-sass/", "duration": "22 hours", "price": "Paid"}
+    {
+      "name": "CSS - The Complete Guide",
+      "platform": "Udemy",
+      "url": "https://www.udemy.com/course/css-the-complete-guide-incl-flexbox-grid-sass/",
+      "duration": "22 hours",
+      "price": "$15",
+      "difficulty": "beginner"
+    },
+    {
+      "name": "CSS Tutorial",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=OXGznpKZ_sA",
+      "duration": "4 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ],
   "Adobe XD": [
-    {"name": "Adobe XD UI/UX Design", "platform": "Udemy", "url": "https://www.udemy.com/course/adobe-xd-ux-ui-design-user-experience-course/", "duration": "11 hours", "price": "Paid"}
+    {
+      "name": "Adobe XD UI/UX Design",
+      "platform": "Udemy",
+      "url": "https://www.udemy.com/course/adobe-xd-ui-ux-design-course/",
+      "duration": "9 hours",
+      "price": "$15",
+      "difficulty": "intermediate"
+    },
+    {
+      "name": "Adobe XD Tutorial",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=68w2VwalD5w",
+      "duration": "2.5 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ],
   "Usability Testing": [
-    {"name": "Evaluating User Interfaces", "platform": "Coursera", "url": "https://www.coursera.org/learn/evaluating-user-interfaces", "duration": "4 weeks", "price": "Free"}
+    {
+      "name": "Usability Testing Essentials",
+      "platform": "Interaction Design Foundation",
+      "url": "https://www.interaction-design.org/courses/usability-testing-and-user-research",
+      "duration": "3 hours",
+      "price": "Free",
+      "difficulty": "intermediate"
+    },
+    {
+      "name": "Usability Testing Guide",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=6dIQYuXKPxc",
+      "duration": "1.5 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ],
   "Design Systems": [
-    {"name": "Introduction to Design Systems", "platform": "Coursera", "url": "https://www.coursera.org/learn/design-systems", "duration": "3 weeks", "price": "Free"}
+    {
+      "name": "Building Design Systems",
+      "platform": "Frontend Masters",
+      "url": "https://frontendmasters.com/courses/design-systems/",
+      "duration": "4 hours",
+      "price": "$39/month",
+      "difficulty": "advanced"
+    },
+    {
+      "name": "Design Systems 101",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=sPXeUH7noso",
+      "duration": "2 hours",
+      "price": "Free",
+      "difficulty": "intermediate"
+    }
   ],
   "Docker": [
-    {"name": "Docker and Kubernetes: The Complete Guide", "platform": "Udemy", "url": "https://www.udemy.com/course/docker-and-kubernetes-the-complete-guide/", "duration": "22 hours", "price": "Paid"}
+    {
+      "name": "Docker & Kubernetes Masterclass",
+      "platform": "Udemy",
+      "url": "https://www.udemy.com/course/docker-kubernetes-complete-guide/",
+      "duration": "18 hours",
+      "price": "$15",
+      "difficulty": "intermediate"
+    },
+    {
+      "name": "Docker Tutorial",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=3c-iBn73dHA",
+      "duration": "2 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ],
   "Kubernetes": [
-    {"name": "Kubernetes Certified Application Developer (CKAD)", "platform": "Udemy", "url": "https://www.udemy.com/course/certified-kubernetes-application-developer/", "duration": "15 hours", "price": "Paid"}
+    {
+      "name": "Kubernetes for Developers",
+      "platform": "Udemy",
+      "url": "https://www.udemy.com/course/kubernetes-microservices/",
+      "duration": "16 hours",
+      "price": "$15",
+      "difficulty": "intermediate"
+    },
+    {
+      "name": "Kubernetes Tutorial",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=X48VuDVv0cw",
+      "duration": "4 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ],
-  "CI/CD": [
-    {"name": "DevOps, CI/CD, and Build Automation", "platform": "Coursera", "url": "https://www.coursera.org/learn/devops-cod-build-automation", "duration": "4 weeks", "price": "Free"}
-  ],
-  "AWS/Azure/GCP": [
-    {"name": "AWS Certified Cloud Practitioner", "platform": "Coursera", "url": "https://www.coursera.org/learn/aws-cloud-practitioner-essentials", "duration": "4 weeks", "price": "Free"}
-  ],
-  "Jenkins": [
-    {"name": "Jenkins, From Zero To Hero", "platform": "Udemy", "url": "https://www.udemy.com/course/jenkins-from-zero-to-hero/", "duration": "10 hours", "price": "Paid"}
-  ],
-  "Git": [
-    {"name": "Version Control with Git", "platform": "Coursera", "url": "https://www.coursera.org/learn/version-control-with-git", "duration": "4 weeks", "price": "Free"}
-  ],
-  "Terraform": [
-    {"name": "HashiCorp Certified: Terraform Associate", "platform": "Udemy", "url": "https://www.udemy.com/course/terraform-hands-on/", "duration": "12 hours", "price": "Paid"}
-  ],
-  "Linux": [
-    {"name": "Linux Tools for Developers", "platform": "Coursera", "url": "https://www.coursera.org/learn/linux-tools-for-developers", "duration": "4 weeks", "price": "Free"}
+  "AWS": [
+    {
+      "name": "AWS Certified Solutions Architect",
+      "platform": "Udemy",
+      "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate/",
+      "duration": "24 hours",
+      "price": "$15",
+      "difficulty": "intermediate"
+    },
+    {
+      "name": "AWS Essentials",
+      "platform": "YouTube",
+      "url": "https://www.youtube.com/watch?v=3hLmDS179YE",
+      "duration": "3 hours",
+      "price": "Free",
+      "difficulty": "beginner"
+    }
   ]
 }

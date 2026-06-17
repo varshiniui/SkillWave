@@ -1,126 +1,225 @@
-"""
-Question Generator Module
-Creates personalized interview questions based on candidate profile
-"""
-
 import os
+import re
+import json
+import traceback
 from dotenv import load_dotenv
 from groq import Groq
 
 load_dotenv()
 
-# Initialize Groq client
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
 
 def generate_questions(profile, target_role):
     """
-    Generate 30 personalized interview questions based on candidate profile.
-
-    Args:
-        profile (dict): Candidate profile from analyze_skills
-        target_role (str): Target job role
-
-    Returns:
-        list: List of 30 interview questions split as:
-              - 10 Technical (role concepts & matched skills)
-              - 5  Project-based (about candidate's actual projects)
-              - 5  Experience-based (about internships / work experience)
-              - 5  Missing-skill-based (exploring gaps)
-              - 5  Scenario / Behavioural
+    Generate exactly 20 personalized interview questions split as:
+    - 10 Technical Questions  (based on matched skills + role requirements)
+    - 5  Project-Based Questions (based on candidate's actual projects)
+    - 5  Scenario-Based Questions (situational + missing skills)
     """
 
-    # Build rich context from profile
-    candidate_skills   = ", ".join(profile.get("skills", [])) or "None"
-    candidate_projects = ", ".join(profile.get("projects", [])) or "None"
-    missing_skills     = ", ".join(profile.get("missing_skills", [])) or "None"
-    required_skills    = ", ".join(profile.get("required_skills", [])) or "None"
-    matched_skills     = ", ".join(profile.get("matched_skills", [])) or "None"
-    experience         = ", ".join(profile.get("experience", [])) or "None"
-    certifications     = ", ".join(profile.get("certifications", [])) or "None"
-    candidate_name     = profile.get("name", "the candidate")
+    candidate_skills   = ", ".join(profile.get("skills", []))         or "None mentioned"
+    matched_skills     = ", ".join(profile.get("matched_skills", []))  or "None"
+    missing_skills     = ", ".join(profile.get("missing_skills", []))  or "None"
+    candidate_projects = ", ".join(profile.get("projects", []))        or "None mentioned"
+    candidate_name     = profile.get("name", "Candidate")
 
-    question_prompt = f"""You are a senior technical interviewer conducting a real interview. Generate EXACTLY 30 highly personalised interview questions for {candidate_name} applying for the role of {target_role}.
+    question_prompt = f"""You are a senior technical interviewer. Generate exactly 20 interview questions for a {target_role} role, divided into 3 sections as shown below.
 
-CANDIDATE PROFILE:
-- Matched / Known Skills  : {matched_skills}
-- All Extracted Skills    : {candidate_skills}
-- Projects                : {candidate_projects}
-- Work Experience         : {experience}
-- Certifications          : {certifications}
-- Missing Skills          : {missing_skills}
-- Role Requirements       : {required_skills}
+Candidate Profile:
+- Name: {candidate_name}
+- Skills they have: {candidate_skills}
+- Matched skills for this role: {matched_skills}
+- Missing skills for this role: {missing_skills}
+- Projects built: {candidate_projects}
 
-GENERATE EXACTLY 30 QUESTIONS IN THIS ORDER (do NOT add category headers):
+Generate questions in EXACTLY this format with section headers:
 
-Questions 1-10  → TECHNICAL QUESTIONS
-  - Test depth of knowledge in {target_role} concepts and the candidate's matched skills ({matched_skills}).
-  - Be specific and progressively harder (mix beginner, intermediate, and advanced).
+[TECHNICAL - 10 Questions]
+1. <technical question about a skill they have>
+2. <technical question about a skill they have>
+3. <technical question about a skill they have>
+4. <technical question about a skill they have>
+5. <technical question about a skill they have>
+6. <technical question about a skill they have>
+7. <technical question about a skill they have>
+8. <technical question about a skill they have>
+9. <technical question about a missing skill - how they plan to learn it>
+10. <technical question about a missing skill - what they know so far>
 
-Questions 11-15 → PROJECT-BASED QUESTIONS
-  - Reference the candidate's actual projects ({candidate_projects}) by name.
-  - Ask about design decisions, challenges, tools used, and outcomes.
+[PROJECT - 5 Questions]
+11. <question about a specific project they built - why they built it>
+12. <question about a specific project - technical challenges faced>
+13. <question about a specific project - design or architecture decisions>
+14. <question about a specific project - how they tested or validated it>
+15. <question about a specific project - what they would improve>
 
-Questions 16-20 → EXPERIENCE-BASED QUESTIONS
-  - Reference the candidate's internships/experience ({experience}) by company and role.
-  - Ask about real tasks, learnings, and contributions at those companies.
+[SCENARIO - 5 Questions]
+16. <situational question: how would you handle a real work situation>
+17. <situational question: conflict resolution or team collaboration>
+18. <situational question: tight deadline or priority management>
+19. <situational question: learning a new skill quickly on the job>
+20. <situational question: receiving critical feedback or failure>
 
-Questions 21-25 → MISSING SKILL QUESTIONS
-  - Gently probe the candidate's familiarity with their missing skills ({missing_skills}).
-  - Ask if they have worked with these tools, how they plan to learn them, and their exposure level.
-
-Questions 26-30 → SCENARIO / BEHAVIOURAL QUESTIONS
-  - Present real-world situations a {target_role} would face.
-  - Use STAR format triggers (Situation, Task, Action, Result).
-
-FORMAT:
-- Return ONLY numbered questions 1-30, one per line.
-- No category headers, no explanations, no markdown, no extra text.
-- Example format:
-  1. Question here.
-  2. Question here.
-"""
+Rules:
+- Make ALL questions specific to this candidate's actual skills and projects above
+- Do NOT use placeholder text like <question> — write real questions
+- Number questions 1-20 continuously
+- Return ONLY the numbered questions with section headers, nothing else"""
 
     try:
-        question_response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            max_tokens=3000,
+        print("Calling Groq API for question generation...")
+        response = client.chat.completions.create(
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            max_tokens=2500,
             temperature=0.7,
-            messages=[
-                {
-                    "role": "user",
-                    "content": question_prompt
-                }
-            ]
+            messages=[{"role": "user", "content": question_prompt}]
         )
 
-        questions_text = question_response.choices[0].message.content
+        raw_text = response.choices[0].message.content.strip()
+        print(f"Raw questions (first 400 chars): {raw_text[:400]}")
 
-        # Parse: split by newlines, keep only non-empty lines
-        questions = [
-            q.strip()
-            for q in questions_text.split("\n")
-            if q.strip()
-        ]
+        # Parse into categorized sections
+        technical, project, scenario = [], [], []
+        current_section = None
 
-        return questions
+        for line in raw_text.split("\n"):
+            line = line.strip()
+            if not line:
+                continue
+
+            # Detect section headers
+            if "[TECHNICAL" in line.upper():
+                current_section = "technical"
+                continue
+            elif "[PROJECT" in line.upper():
+                current_section = "project"
+                continue
+            elif "[SCENARIO" in line.upper():
+                current_section = "scenario"
+                continue
+
+            # Parse numbered questions
+            match = re.match(r"^\d+[\.\)]\s+(.+)", line)
+            if match:
+                question_text = match.group(1).strip()
+                if not question_text:
+                    continue
+                if current_section == "technical":
+                    technical.append(question_text)
+                elif current_section == "project":
+                    project.append(question_text)
+                elif current_section == "scenario":
+                    scenario.append(question_text)
+                else:
+                    # No header yet — assign by count
+                    total = len(technical) + len(project) + len(scenario)
+                    if total < 10:
+                        technical.append(question_text)
+                    elif total < 15:
+                        project.append(question_text)
+                    else:
+                        scenario.append(question_text)
+
+        print(f"Parsed: {len(technical)} technical, {len(project)} project, {len(scenario)} scenario")
+
+        # Pad sections if model returned fewer than expected
+        technical = _pad_section(technical, 10, "technical", target_role, candidate_skills)
+        project   = _pad_section(project,   5,  "project",   target_role, candidate_projects)
+        scenario  = _pad_section(scenario,  5,  "scenario",  target_role, missing_skills)
+
+        # Return structured dict AND flat list (flat list used by existing UI/export)
+        structured = {
+            "technical": technical[:10],
+            "project":   project[:5],
+            "scenario":  scenario[:5],
+        }
+
+        flat = technical[:10] + project[:5] + scenario[:5]
+
+        print(f"Final: {len(flat)} total questions")
+        return flat, structured
 
     except Exception as e:
-        print(f"Warning: Error generating questions: {e}")
-        # Fallback questions if API fails
-        return [
-            "1. Tell me about your experience with the required skills.",
-            "2. Describe a project you worked on.",
-            "3. What challenges did you face in your projects?",
-            "4. How do you approach learning new technologies?",
-            "5. Why are you interested in this role?",
-            "6. What are your technical strengths?",
-            "7. What are your weaknesses and how are you working on them?",
-            "8. How do you stay updated with industry trends?",
-            "9. Tell me about a time you failed and what you learned.",
-            "10. How do you handle pressure and tight deadlines?",
-            "11. Describe the most complex project you have built.",
-            "12. What tools did you use in your internship?",
-            "13. How do you ensure code/design quality in your work?",
-            "14. Tell me about a time you had to learn something quickly.",
-            "15. How do you collaborate with a team under deadlines?",
-        ]
+        print(f"Question Generation Error: {type(e).__name__}: {e}")
+        traceback.print_exc()
+        flat = _fallback_questions(target_role)
+        structured = {
+            "technical": flat[:10],
+            "project":   flat[10:15],
+            "scenario":  flat[15:20],
+        }
+        return flat, structured
+
+
+def _pad_section(questions, target_count, section_type, role, context):
+    """Fill in generic questions if a section has fewer than expected."""
+    fallbacks = {
+        "technical": [
+            f"What is your experience with the core technologies required for a {role}?",
+            f"How do you approach debugging complex issues in {role} work?",
+            "Explain a technical concept you recently learned and how you applied it.",
+            "What development tools and workflows do you use daily?",
+            "How do you ensure code/work quality and maintainability?",
+            "Describe your experience with version control and collaboration tools.",
+            "How do you stay updated with the latest trends in your field?",
+            "What is the most complex technical problem you've solved?",
+            "How do you approach learning a new framework or tool quickly?",
+            f"What do you consider best practices for a {role}?",
+        ],
+        "project": [
+            "Walk me through your most significant project from start to finish.",
+            "What was the biggest technical challenge you faced in one of your projects?",
+            "How did you decide on the tech stack for one of your projects?",
+            "How did you test and validate your project before deployment?",
+            "What would you do differently if you rebuilt one of your projects today?",
+        ],
+        "scenario": [
+            "How would you handle a situation where you disagreed with your team lead's technical decision?",
+            "Describe how you would manage multiple tasks with competing deadlines.",
+            "You are asked to learn a completely new technology in one week. How do you approach it?",
+            "How would you handle receiving critical feedback on your work from a client?",
+            "Describe a situation where you had to collaborate across teams to solve a problem.",
+        ],
+    }
+
+    while len(questions) < target_count:
+        idx = len(questions)
+        fb = fallbacks.get(section_type, [])
+        if idx < len(fb):
+            questions.append(fb[idx])
+        else:
+            questions.append(f"Tell me more about your experience relevant to {role}.")
+
+    return questions
+
+
+def _fallback_questions(target_role):
+    """Full fallback when API fails entirely."""
+    technical = [
+        f"What core technologies do you use as a {target_role}?",
+        "Explain a key technical concept in your domain.",
+        "How do you approach debugging a problem you've never seen before?",
+        "What development tools and workflows are you most comfortable with?",
+        "How do you ensure quality and maintainability in your work?",
+        "Describe your experience with version control (Git).",
+        "How do you stay updated with the latest industry trends?",
+        "What is the most complex technical problem you've solved?",
+        "How do you learn a new framework or tool quickly?",
+        f"What best practices do you follow as a {target_role}?",
+    ]
+    project = [
+        "Walk me through your most significant project from start to finish.",
+        "What was the biggest challenge you faced in one of your projects?",
+        "How did you decide on the tech stack for a project?",
+        "How did you test and validate your project?",
+        "What would you improve if you rebuilt your best project today?",
+    ]
+    scenario = [
+        "How would you handle disagreeing with your team lead on a technical decision?",
+        "Describe how you manage multiple tasks with competing deadlines.",
+        "You need to learn a new technology in one week. What's your approach?",
+        "How do you handle receiving critical feedback on your work?",
+        f"Why should we hire you for this {target_role} position?",
+    ]
+    return technical + project + scenario
