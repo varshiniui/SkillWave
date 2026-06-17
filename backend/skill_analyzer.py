@@ -268,14 +268,25 @@ Resume text (3 parts):
 Extract these fields:
 - name: Full name exactly as written
 - education: Full degree and institution
-- skills: ONLY technical skills/tools/frameworks/languages (NOT soft skills like "communication", "teamwork", "problem-solving"). Examples: Python, React, Docker, SQL, Figma, AWS. Be specific and precise.
+- skills: ONLY technical skills/tools/frameworks/languages. Include compound skills:
+  * Languages: Python, JavaScript, Java, C#, PHP, Dart, Kotlin, etc.
+  * Frontend: React, Next.js, Angular, Vue, Flutter, etc.
+  * Backend: Node.js, Express, Django, Flask, FastAPI, Spring Boot, etc.
+  * Databases: SQL, PostgreSQL, MongoDB, MySQL, Supabase, Firebase, etc.
+  * APIs & Authentication: REST APIs, GraphQL, JWT, OAuth, Authentication, etc.
+  * Deployment & DevOps: Docker, Kubernetes, CI/CD, Deployment, Vercel, AWS, Azure, GCP, Railway, etc.
+  * Tools: Git, GitHub, Figma, Jira, etc.
+  * AI/ML: TensorFlow, PyTorch, scikit-learn, Groq, Gemini, etc.
+  * DO NOT include soft skills (communication, teamwork, leadership, problem-solving)
 - projects: Distinct named software projects only (NOT URLs or portfolio links)
 - internships: Company names where internships were completed
 - experience: Full-time/freelance roles in format "Job Title at Company" (NOT internships)
 - certifications: Full certification names
 
+IMPORTANT: If resume mentions "REST API", "JWT", "OAuth", "deployed on Vercel/Railway/etc", "CI/CD", include those skills explicitly.
+
 Return ONLY valid JSON:
-{{"name":"John Doe","education":"B.Tech IT, University","skills":["Python","React","SQL"],"projects":["App1","App2"],"internships":["Company1"],"experience":[],"certifications":["AWS Certified"]}}"""
+{{"name":"John Doe","education":"B.Tech IT, University","skills":["Python","React","Node.js","REST APIs","JWT","Authentication","Deployment","Docker","PostgreSQL"],"projects":["App1","App2"],"internships":["Company1"],"experience":[],"certifications":["AWS Certified"]}}"""
 
     resume_data = {
         "name": "Candidate",
