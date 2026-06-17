@@ -2,11 +2,6 @@
 
 > **AI-Powered Resume Analyzer & Personalized Interview Preparation Platform**
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://varshiniui-skillwave-frontendmain-c8u2ih.streamlit.app/)
-[![Backend](https://img.shields.io/badge/Backend-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://render.com)
-[![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![Groq](https://img.shields.io/badge/Powered%20by-Groq%20LLM-F55036?style=for-the-badge)](https://console.groq.com)
-
 ---
 
 ## Live Demo
