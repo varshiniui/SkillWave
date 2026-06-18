@@ -9,7 +9,6 @@ load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-
 def generate_questions(profile, target_role):
     """
     Generate exactly 20 personalized interview questions split as:
@@ -67,18 +66,43 @@ Rules:
 - Number questions 1-20 continuously
 - Return ONLY the numbered questions with section headers, nothing else"""
 
+    models_to_try = [
+        "meta-llama/llama-4-scout-17b-16e-instruct",
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant",
+    ]
+
+    raw_text = None
+    last_error = None
+
+    for model in models_to_try:
+        try:
+            print(f"Calling Groq API for question generation with model: {model}")
+            response = client.chat.completions.create(
+                model=model,
+                max_tokens=2500,
+                temperature=0.7,
+                messages=[{"role": "user", "content": question_prompt}]
+            )
+            raw_text = response.choices[0].message.content.strip()
+            print(f"Raw questions ({model}, first 400 chars): {raw_text[:400]}")
+            break
+        except Exception as e:
+            last_error = e
+            print(f"Question generation failed on {model}: {type(e).__name__}: {e}")
+            continue
+
+    if raw_text is None:
+        print(f"All models failed for question generation, using static fallback. Last error: {last_error}")
+        flat = _fallback_questions(target_role)
+        structured = {
+            "technical": flat[:10],
+            "project":   flat[10:15],
+            "scenario":  flat[15:20],
+        }
+        return flat, structured
+
     try:
-        print("Calling Groq API for question generation...")
-        response = client.chat.completions.create(
-            model="meta-llama/llama-4-scout-17b-16e-instruct",
-            max_tokens=2500,
-            temperature=0.7,
-            messages=[{"role": "user", "content": question_prompt}]
-        )
-
-        raw_text = response.choices[0].message.content.strip()
-        print(f"Raw questions (first 400 chars): {raw_text[:400]}")
-
         # Parse into categorized sections
         technical, project, scenario = [], [], []
         current_section = None
@@ -88,7 +112,6 @@ Rules:
             if not line:
                 continue
 
-            # Detect section headers
             if "[TECHNICAL" in line.upper():
                 current_section = "technical"
                 continue
@@ -99,7 +122,6 @@ Rules:
                 current_section = "scenario"
                 continue
 
-            # Parse numbered questions
             match = re.match(r"^\d+[\.\)]\s+(.+)", line)
             if match:
                 question_text = match.group(1).strip()
@@ -112,7 +134,6 @@ Rules:
                 elif current_section == "scenario":
                     scenario.append(question_text)
                 else:
-                    # No header yet — assign by count
                     total = len(technical) + len(project) + len(scenario)
                     if total < 10:
                         technical.append(question_text)
@@ -123,12 +144,10 @@ Rules:
 
         print(f"Parsed: {len(technical)} technical, {len(project)} project, {len(scenario)} scenario")
 
-        # Pad sections if model returned fewer than expected
         technical = _pad_section(technical, 10, "technical", target_role, candidate_skills)
         project   = _pad_section(project,   5,  "project",   target_role, candidate_projects)
         scenario  = _pad_section(scenario,  5,  "scenario",  target_role, missing_skills)
 
-        # Return structured dict AND flat list (flat list used by existing UI/export)
         structured = {
             "technical": technical[:10],
             "project":   project[:5],
@@ -141,7 +160,7 @@ Rules:
         return flat, structured
 
     except Exception as e:
-        print(f"Question Generation Error: {type(e).__name__}: {e}")
+        print(f"Question Parsing Error: {type(e).__name__}: {e}")
         traceback.print_exc()
         flat = _fallback_questions(target_role)
         structured = {
@@ -150,6 +169,7 @@ Rules:
             "scenario":  flat[15:20],
         }
         return flat, structured
+        
 
 
 def _pad_section(questions, target_count, section_type, role, context):
