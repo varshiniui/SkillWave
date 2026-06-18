@@ -294,17 +294,40 @@ st.markdown("""
         background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 76, 117, 0.3));
     }
     
-    /* File Uploader */
-    [data-testid="stFileUploadDropzone"] {
+    /* File Uploader — note the correct testid is "stFileUploaderDropzone"
+       (the previous selector had a typo and never matched anything,
+       which is why this stayed plain white). */
+    [data-testid="stFileUploaderDropzone"] {
         border: 2px dashed rgba(0, 188, 212, 0.3) !important;
         border-radius: 16px !important;
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.3), rgba(15, 76, 117, 0.15)) !important;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 76, 117, 0.3)) !important;
         transition: all 0.3s ease;
     }
     
-    [data-testid="stFileUploadDropzone"]:hover {
+    [data-testid="stFileUploaderDropzone"]:hover {
         border-color: rgba(0, 188, 212, 0.6) !important;
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 76, 117, 0.3)) !important;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 76, 117, 0.4)) !important;
+    }
+
+    [data-testid="stFileUploaderDropzoneInstructions"] {
+        color: #d1d5db !important;
+    }
+
+    [data-testid="stFileUploaderDropzoneInstructions"] svg {
+        fill: #00bcd4 !important;
+    }
+
+    [data-testid="stFileUploader"] button {
+        background: linear-gradient(135deg, rgba(0, 188, 212, 0.2), rgba(0, 172, 193, 0.1)) !important;
+        color: #e5e7eb !important;
+        border: 1px solid rgba(0, 188, 212, 0.4) !important;
+        border-radius: 10px !important;
+    }
+
+    [data-testid="stFileUploaderFile"] {
+        color: #e5e7eb !important;
+        background: rgba(30, 41, 59, 0.6) !important;
+        border-radius: 10px !important;
     }
     
     /* Selectbox */
@@ -322,8 +345,15 @@ st.markdown("""
         background: linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(15, 76, 117, 0.2));
         border: 1px solid rgba(0, 188, 212, 0.15);
         border-radius: 16px;
-        padding: 16px;
+        padding: 8px;
         backdrop-filter: blur(10px);
+        overflow: visible !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+
+    [data-testid="stPlotlyChart"] > div {
+        overflow: visible !important;
     }
     
     /* Role Detection Card */
@@ -397,8 +427,9 @@ def render_readiness_gauge(readiness):
         },
     ))
     fig.update_layout(
-        height=300,
-        margin=dict(l=30, r=30, t=70, b=10),
+        height=260,
+        width=300,
+        margin=dict(l=20, r=20, t=50, b=20),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         font={'color': "#e5e7eb", 'size': 12},
@@ -608,7 +639,7 @@ if st.session_state.profile:
             st.markdown("**Readiness Score**")
             st.plotly_chart(
                 render_readiness_gauge(profile.get('readiness', 0)),
-                use_container_width=True,
+                use_container_width=False,
                 config={'displayModeBar': False}
             )
 
