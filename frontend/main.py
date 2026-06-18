@@ -320,21 +320,18 @@ def render_readiness_gauge(readiness):
     """Render readiness score as a circular gauge with enhanced styling."""
     if readiness >= 70:
         bar_color = "#00BCD4"
-        fill_color = "#e0f7fa"
     elif readiness >= 40:
         bar_color = "#FF9800"
-        fill_color = "#fff3e0"
     else:
         bar_color = "#F44336"
-        fill_color = "#fdecea"
 
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=readiness,
-        number={'suffix': "%", 'font': {'size': 40, 'family': 'Plus Jakarta Sans', 'color': bar_color}},
+        number={'suffix': "%", 'font': {'size': 40, 'color': bar_color}},
         gauge={
-            'axis': {'range': [0, 100], 'tickwidth': 2, 'tickcolor': "rgba(0, 188, 212, 0.3)", 'thickness': 0.3},
-            'bar': {'color': bar_color, 'thickness': 0.4},
+            'axis': {'range': [0, 100], 'tickwidth': 2, 'tickcolor': "rgba(0, 188, 212, 0.3)"},
+            'bar': {'color': bar_color},
             'bgcolor': "rgba(30, 41, 59, 0.3)",
             'borderwidth': 2,
             'bordercolor': bar_color,
@@ -350,9 +347,8 @@ def render_readiness_gauge(readiness):
         margin=dict(l=20, r=20, t=40, b=20),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        font={'color': "#e5e7eb", 'family': "Plus Jakarta Sans"},
+        font={'color': "#e5e7eb", 'size': 12},
     )
-    fig.update_traces(marker_line_width=0)
     return fig
 
 
