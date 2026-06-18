@@ -204,7 +204,7 @@ if st.session_state.profile:
     structured_questions = st.session_state.structured_questions or {}
     target_role = st.session_state.target_role
 
-    st.markdown(f"📋 **Currently viewing analysis for:** {target_role}")
+    st.markdown(f" **Currently viewing analysis for:** {target_role}")
 
     if st.session_state.auto_detected and st.session_state.suggested_roles:
         st.markdown("### Role Detected from Resume")
