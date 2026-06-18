@@ -58,14 +58,26 @@ st.markdown("""
         border-radius: 50% !important;
     }
 
-    /* The icon itself is a Material Symbols font glyph rendered as text,
-       not an <svg> — color (not fill) is what actually controls it. */
-    [data-testid="stSidebarCollapseButton"] *,
-    [data-testid="collapsedControl"] * {
-        color: #00bcd4 !important;
-        fill: #00bcd4 !important;
-        stroke: #00bcd4 !important;
-        opacity: 1 !important;
+    /* Same situation as the file-delete icon below: color/fill didn't
+       actually render anything, so hide the native icon and draw our
+       own guaranteed-visible arrow instead. */
+    [data-testid="stSidebarCollapseButton"] button svg,
+    [data-testid="stSidebarCollapseButton"] button span {
+        opacity: 0 !important;
+    }
+
+    [data-testid="stSidebarCollapseButton"] button::after {
+        content: "‹‹";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -52%);
+        color: #00bcd4;
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -2px;
+        pointer-events: none;
     }
     
     /* Sidebar Styling */
@@ -340,20 +352,41 @@ st.markdown("""
         border-radius: 10px !important;
     }
 
-    /* The "x" button to remove an uploaded file — needs its own rule,
-       since it only inherited the generic button background above and
-       the icon itself had no contrasting fill set. */
-    [data-testid="stFileUploaderDeleteBtn"] {
-        background: rgba(15, 30, 58, 0.9) !important;
-        border: 1px solid rgba(0, 188, 212, 0.5) !important;
+    /* The "x" button to remove an uploaded file. Neither 'color' nor
+       'fill' actually rendered anything — whatever icon mechanism
+       Streamlit uses here isn't responding to either, so instead of
+       guessing again: hide the native (invisible) icon completely and
+       draw our own "×" with a pseudo-element. This is guaranteed to
+       show no matter how the underlying icon is implemented.
+       The substring match (*=) is a safety net in case the exact
+       testid differs by Streamlit version. */
+    [data-testid="stFileUploaderDeleteBtn"],
+    [data-testid*="DeleteBtn" i] {
+        background: rgba(15, 30, 58, 0.95) !important;
+        border: 1px solid rgba(0, 188, 212, 0.6) !important;
         border-radius: 50% !important;
+        position: relative !important;
     }
 
-    [data-testid="stFileUploaderDeleteBtn"] * {
-        color: #00bcd4 !important;
-        fill: #00bcd4 !important;
-        stroke: #00bcd4 !important;
-        opacity: 1 !important;
+    [data-testid="stFileUploaderDeleteBtn"] svg,
+    [data-testid="stFileUploaderDeleteBtn"] span,
+    [data-testid*="DeleteBtn" i] svg,
+    [data-testid*="DeleteBtn" i] span {
+        opacity: 0 !important;
+    }
+
+    [data-testid="stFileUploaderDeleteBtn"]::after,
+    [data-testid*="DeleteBtn" i]::after {
+        content: "×";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -52%);
+        color: #00bcd4;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1;
+        pointer-events: none;
     }
 
     [data-testid="stFileUploaderFile"] {
