@@ -18,7 +18,38 @@ st.markdown("""
     
     /* Main Page Background */
     .stApp {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f4c75 100%);
+        background: linear-gradient(135deg, #16213e 0%, #25395c 50%, #146591 100%);
+    }
+
+    /* Default Streamlit header sits ABOVE .stApp's background and is white
+       by default — this is the white strip at the top of the page.
+       Make it transparent so the gradient shows through, and drop the
+       colored decoration bar Streamlit renders just under it. */
+    [data-testid="stHeader"] {
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    [data-testid="stToolbar"] {
+        background: transparent !important;
+    }
+
+    [data-testid="stDecoration"] {
+        display: none !important;
+    }
+
+    /* Sidebar collapse/expand arrow — was inheriting a near-invisible
+       default color against the dark sidebar. Force it visible. */
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="collapsedControl"] {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    [data-testid="stSidebarCollapseButton"] svg,
+    [data-testid="collapsedControl"] svg {
+        fill: #00bcd4 !important;
+        stroke: #00bcd4 !important;
     }
     
     /* Sidebar Styling */
@@ -170,6 +201,29 @@ st.markdown("""
     input:focus, select:focus, textarea:focus {
         border-color: rgba(0, 188, 212, 0.8) !important;
         box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+    }
+
+    /* Streamlit's selectbox/dropdown is a BaseWeb component, not a native
+       <select> — the rules above never reach it, which is why it showed
+       a plain grey box. Target it directly. */
+    [data-baseweb="select"] > div {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 76, 117, 0.3)) !important;
+        border: 1px solid rgba(0, 188, 212, 0.3) !important;
+        border-radius: 12px !important;
+        color: #e5e7eb !important;
+    }
+
+    [data-baseweb="select"] svg {
+        fill: #00bcd4 !important;
+    }
+
+    [data-baseweb="popover"] li {
+        background: #16213e !important;
+        color: #e5e7eb !important;
+    }
+
+    [data-baseweb="popover"] li:hover {
+        background: rgba(0, 188, 212, 0.15) !important;
     }
     
     /* Section Tags/Badges */
@@ -343,8 +397,8 @@ def render_readiness_gauge(readiness):
         },
     ))
     fig.update_layout(
-        height=240,
-        margin=dict(l=20, r=20, t=40, b=20),
+        height=300,
+        margin=dict(l=30, r=30, t=70, b=10),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         font={'color': "#e5e7eb", 'size': 12},
