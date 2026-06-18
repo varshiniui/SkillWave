@@ -198,7 +198,7 @@ if st.session_state.profile:
     target_role = st.session_state.target_role
 
     if profile.get("auto_detected") and profile.get("suggested_roles"):
-        st.markdown("### 🎯 Role Detected from Resume")
+        st.markdown("### Role Detected from Resume")
         st.caption("No target role was specified, so SkillWave identified the best-fitting roles for this candidate. The report below is based on the top match.")
 
         suggestions = profile["suggested_roles"]
