@@ -7,29 +7,306 @@ from resume_parser import extract_resume_text
 
 st.set_page_config(page_title="SkillWave", layout="wide", initial_sidebar_state="expanded")
 
+# Enhanced Modern UI with Gradients and Glassmorphism
 st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+    
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    /* Main Page Background */
+    .stApp {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f4c75 100%);
+    }
+    
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #1a2744 0%, #0f1e3a 100%) !important;
+        border-right: 1px solid rgba(0, 188, 212, 0.1) !important;
+    }
+    
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+        gap: 1.5rem;
+    }
+    
+    /* Header Styling */
     .main-header {
         text-align: center;
-        color: #00BCD4;
-        font-size: 2.5em;
-        font-weight: bold;
-        margin-bottom: 10px;
+        background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 3.5em;
+        font-weight: 800;
+        letter-spacing: -2px;
+        margin-bottom: 8px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
+    
     .sub-header {
         text-align: center;
-        color: #666;
+        color: #9ca3af;
         font-size: 1.1em;
-        margin-bottom: 30px;
+        font-weight: 400;
+        margin-bottom: 32px;
+        letter-spacing: 0.5px;
     }
+    
+    /* Section Headers */
+    [data-testid="stMarkdownContainer"] h1, 
+    [data-testid="stMarkdownContainer"] h2,
+    [data-testid="stMarkdownContainer"] h3,
+    [data-testid="stMarkdownContainer"] h4 {
+        background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+    
+    /* Tabs Styling */
+    [data-testid="stTabs"] {
+        background: rgba(30, 41, 59, 0.5);
+        border-radius: 16px;
+        padding: 2px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 188, 212, 0.1);
+    }
+    
+    [data-testid="stTabs"] [role="tab"] {
+        color: #d1d5db;
+        font-weight: 500;
+        font-size: 0.95rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+    
+    [data-testid="stTabs"] [role="tab"][aria-selected="true"] {
+        background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+        color: white;
+        box-shadow: 0 8px 16px rgba(0, 188, 212, 0.3);
+    }
+    
+    [data-testid="stTabs"] [role="tab"]:hover {
+        background: rgba(0, 188, 212, 0.1);
+        color: #00bcd4;
+    }
+    
+    /* Metric Cards */
+    [data-testid="stMetric"] {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 76, 117, 0.3));
+        border: 1px solid rgba(0, 188, 212, 0.2);
+        border-radius: 16px;
+        padding: 24px !important;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    [data-testid="stMetric"]:hover {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 76, 117, 0.5));
+        border-color: rgba(0, 188, 212, 0.4);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 48px rgba(0, 188, 212, 0.2);
+    }
+    
+    [data-testid="stMetric"] [data-testid="stMetricValue"] {
+        color: #00bcd4;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 2.2em !important;
+        font-weight: 700;
+    }
+    
+    [data-testid="stMetric"] [data-testid="stMetricLabel"] {
+        color: #9ca3af;
+        font-weight: 500;
+        font-size: 0.85rem !important;
+    }
+    
+    /* Buttons */
+    .stButton > button {
+        background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        padding: 12px 24px;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 16px rgba(0, 188, 212, 0.3);
+        letter-spacing: 0.3px;
+    }
+    
+    .stButton > button:hover {
+        background: linear-gradient(135deg, #00acc1 0%, #0097a7 100%);
+        box-shadow: 0 12px 32px rgba(0, 188, 212, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .stButton > button:active {
+        transform: translateY(0);
+    }
+    
+    /* Input Fields */
+    input, select, textarea {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(15, 76, 117, 0.2)) !important;
+        border: 1px solid rgba(0, 188, 212, 0.2) !important;
+        border-radius: 12px !important;
+        color: #e5e7eb !important;
+        font-size: 0.95rem;
+        padding: 12px 16px !important;
+        transition: all 0.3s ease;
+    }
+    
+    input:hover, select:hover, textarea:hover {
+        border-color: rgba(0, 188, 212, 0.4) !important;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 76, 117, 0.3)) !important;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+        border-color: rgba(0, 188, 212, 0.8) !important;
+        box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+    }
+    
+    /* Section Tags/Badges */
     .section-tag {
-        background-color: #e8f4fd;
-        border-left: 4px solid #00BCD4;
-        padding: 8px 12px;
-        margin: 4px 0;
-        border-radius: 4px;
+        background: linear-gradient(135deg, rgba(0, 188, 212, 0.15), rgba(0, 172, 193, 0.05));
+        border-left: 3px solid #00bcd4;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin: 8px 0;
         font-size: 0.95em;
+        color: #e5e7eb;
+        border: 1px solid rgba(0, 188, 212, 0.2);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
     }
+    
+    .section-tag:hover {
+        background: linear-gradient(135deg, rgba(0, 188, 212, 0.25), rgba(0, 172, 193, 0.15));
+        border-left-color: #00acc1;
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(0, 188, 212, 0.15);
+    }
+    
+    /* Info/Warning/Success Boxes */
+    [data-testid="stAlert"] {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 76, 117, 0.2)) !important;
+        border: 1px solid rgba(0, 188, 212, 0.2) !important;
+        border-radius: 12px !important;
+        backdrop-filter: blur(10px);
+    }
+    
+    /* Dividers */
+    [data-testid="stHorizontalBlock"] hr {
+        border: none;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(0, 188, 212, 0.3), transparent);
+        margin: 24px 0;
+    }
+    
+    /* Text Styling */
+    [data-testid="stMarkdownContainer"] p {
+        color: #d1d5db;
+        line-height: 1.6;
+    }
+    
+    [data-testid="stMarkdownContainer"] a {
+        color: #00bcd4;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    [data-testid="stMarkdownContainer"] a:hover {
+        color: #00acc1;
+        text-decoration: underline;
+    }
+    
+    /* Expander */
+    [data-testid="stExpander"] {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(15, 76, 117, 0.2));
+        border: 1px solid rgba(0, 188, 212, 0.15) !important;
+        border-radius: 12px !important;
+        transition: all 0.3s ease;
+    }
+    
+    [data-testid="stExpander"]:hover {
+        border-color: rgba(0, 188, 212, 0.3) !important;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 76, 117, 0.3));
+    }
+    
+    /* File Uploader */
+    [data-testid="stFileUploadDropzone"] {
+        border: 2px dashed rgba(0, 188, 212, 0.3) !important;
+        border-radius: 16px !important;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.3), rgba(15, 76, 117, 0.15)) !important;
+        transition: all 0.3s ease;
+    }
+    
+    [data-testid="stFileUploadDropzone"]:hover {
+        border-color: rgba(0, 188, 212, 0.6) !important;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 76, 117, 0.3)) !important;
+    }
+    
+    /* Selectbox */
+    [data-testid="stSelectbox"] {
+        border-radius: 12px;
+    }
+    
+    /* Caption and Labels */
+    [data-testid="stMarkdownContainer"] .stCaption {
+        color: #9ca3af !important;
+    }
+    
+    /* Plotly Chart */
+    [data-testid="stPlotlyChart"] {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(15, 76, 117, 0.2));
+        border: 1px solid rgba(0, 188, 212, 0.15);
+        border-radius: 16px;
+        padding: 16px;
+        backdrop-filter: blur(10px);
+    }
+    
+    /* Role Detection Card */
+    .role-card {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 76, 117, 0.2)) !important;
+        border: 2px solid rgba(0, 188, 212, 0.2) !important;
+        border-radius: 16px !important;
+        padding: 20px !important;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+    
+    .role-card:hover {
+        border-color: rgba(0, 188, 212, 0.4) !important;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 188, 212, 0.15) !important;
+    }
+    
+    /* Sidebar Header */
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2 {
+        color: #00bcd4;
+        font-size: 1.3em;
+        margin-bottom: 20px;
+    }
+    
+    /* Remove default Streamlit spacing issues */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        max-width: 100%;
+    }
+    
+    /* Smooth transitions everywhere */
+    * {
+        transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+    
     </style>
     """, unsafe_allow_html=True)
 
@@ -40,36 +317,42 @@ API_URL = "https://skillwave-trnj.onrender.com"
 
 
 def render_readiness_gauge(readiness):
-    """Render readiness score as a circular gauge instead of a plain number metric."""
+    """Render readiness score as a circular gauge with enhanced styling."""
     if readiness >= 70:
         bar_color = "#00BCD4"
+        fill_color = "#e0f7fa"
     elif readiness >= 40:
         bar_color = "#FF9800"
+        fill_color = "#fff3e0"
     else:
         bar_color = "#F44336"
+        fill_color = "#fdecea"
 
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=readiness,
-        number={'suffix': "%", 'font': {'size': 32}},
+        number={'suffix': "%", 'font': {'size': 40, 'family': 'Plus Jakarta Sans', 'color': bar_color}},
         gauge={
-            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "#999999"},
-            'bar': {'color': bar_color, 'thickness': 0.3},
-            'bgcolor': "white",
-            'borderwidth': 0,
+            'axis': {'range': [0, 100], 'tickwidth': 2, 'tickcolor': "rgba(0, 188, 212, 0.3)", 'thickness': 0.3},
+            'bar': {'color': bar_color, 'thickness': 0.4},
+            'bgcolor': "rgba(30, 41, 59, 0.3)",
+            'borderwidth': 2,
+            'bordercolor': bar_color,
             'steps': [
-                {'range': [0, 40], 'color': '#fdecea'},
-                {'range': [40, 70], 'color': '#fff3e0'},
-                {'range': [70, 100], 'color': '#e0f7fa'},
+                {'range': [0, 40], 'color': 'rgba(244, 67, 54, 0.1)'},
+                {'range': [40, 70], 'color': 'rgba(255, 152, 0, 0.1)'},
+                {'range': [70, 100], 'color': 'rgba(0, 188, 212, 0.1)'},
             ],
         },
     ))
     fig.update_layout(
-        height=200,
-        margin=dict(l=20, r=20, t=30, b=10),
+        height=240,
+        margin=dict(l=20, r=20, t=40, b=20),
         paper_bgcolor="rgba(0,0,0,0)",
-        font={'color': "#333333", 'family': "Arial"}
+        plot_bgcolor="rgba(0,0,0,0)",
+        font={'color': "#e5e7eb", 'family': "Plus Jakarta Sans"},
     )
+    fig.update_traces(marker_line_width=0)
     return fig
 
 
@@ -78,9 +361,6 @@ def is_resume_text_valid(text, min_words=30, min_alpha_ratio=0.35):
     Heuristic check to catch scanned/image-based PDFs where text extraction
     returns empty, too short, or garbled (mostly non-alphabetic) content.
     Returns (is_valid, error_message).
-    
-    min_alpha_ratio=0.35 allows formatted resumes with tables, symbols, and special characters.
-    Still catches truly scanned/image PDFs which typically have much lower ratios (<0.20).
     """
     if not text or not text.strip():
         return False, ("No text could be extracted from this PDF. It looks like a scanned "
@@ -112,14 +392,13 @@ if 'structured_questions' not in st.session_state:
     st.session_state.structured_questions = None
 if 'target_role' not in st.session_state:
     st.session_state.target_role = None
-
 if 'resume_text' not in st.session_state:
     st.session_state.resume_text = None
-
 if 'auto_detected' not in st.session_state:
     st.session_state.auto_detected = False
 if 'suggested_roles' not in st.session_state:
     st.session_state.suggested_roles = None
+
 # Sidebar
 with st.sidebar:
     st.header("Resume Analysis")
@@ -154,7 +433,6 @@ with st.sidebar:
 
                     print(f"Extracted resume text length: {len(resume_text)}")
 
-                    # Empty string tells the backend to auto-detect the best role
                     role_for_api = "" if target_role_choice == AUTO_DETECT_OPTION else target_role_choice
 
                     response = requests.post(
@@ -166,7 +444,6 @@ with st.sidebar:
                     st.session_state.profile = response.json()
                     st.session_state.resume_text = resume_text
 
-                    # Backend returns the role it actually used (auto-detected or chosen)
                     resolved_role = st.session_state.profile.get("target_role") or role_for_api
                     st.session_state.target_role = resolved_role
                     st.session_state.auto_detected = st.session_state.profile.get("auto_detected", False)
@@ -197,6 +474,7 @@ with st.sidebar:
                     st.error(f"Error: {error_msg}")
                 except Exception as e:
                     st.error(f"Unexpected error: {str(e)}")
+
 # Main content
 if st.session_state.profile:
     profile = st.session_state.profile
@@ -204,29 +482,41 @@ if st.session_state.profile:
     structured_questions = st.session_state.structured_questions or {}
     target_role = st.session_state.target_role
 
-    st.markdown(f" **Currently viewing analysis for:** {target_role}")
+    st.markdown(f"#### Currently viewing analysis for: **{target_role}**")
 
     if st.session_state.auto_detected and st.session_state.suggested_roles:
-        st.markdown("### Role Detected from Resume")
-        st.caption("No target role was specified, so SkillWave identified the best-fitting roles for this candidate. Click any card to switch the report to that role.")
+        st.markdown("### Detected Best-Fit Roles")
+        st.caption("Based on your resume profile, SkillWave identified these roles as the best fit. Click any to view detailed analysis.")
 
         suggestions = st.session_state.suggested_roles
         cols = st.columns(len(suggestions))
         for i, (col, sug) in enumerate(zip(cols, suggestions)):
             with col:
                 is_active = sug["role"] == target_role
-                accent = "#00BCD4" if is_active else "#cccccc"
+                accent = "#00BCD4" if is_active else "rgba(0, 188, 212, 0.3)"
+                card_bg = "linear-gradient(135deg, rgba(0, 188, 212, 0.15), rgba(0, 172, 193, 0.05))" if is_active else "linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(15, 76, 117, 0.2))"
+                
                 st.markdown(
-                    f"<div style='border:2px solid {accent};border-radius:10px;padding:14px;text-align:center;'>"
-                    f"<div style='font-weight:bold;font-size:1.05em;'>{sug['role']}</div>"
-                    f"<div style='font-size:1.8em;color:{accent};font-weight:bold;'>{sug['readiness']}%</div>"
-                    f"<div style='font-size:0.85em;color:#666;'>{sug['matched_count']}/{sug['total_count']} skills matched</div>"
-                    + ("<div style='font-size:0.8em;color:#00BCD4;margin-top:4px;'>★ Shown below</div>" if is_active else "")
-                    + "</div>",
+                    f"""
+                    <div style='
+                        background: {card_bg};
+                        border: 2px solid {accent};
+                        border-radius: 16px;
+                        padding: 20px;
+                        text-align: center;
+                        transition: all 0.3s ease;
+                        backdrop-filter: blur(10px);
+                    '>
+                        <div style='font-weight: 700; font-size: 1.1em; color: #e5e7eb; margin-bottom: 12px;'>{sug['role']}</div>
+                        <div style='font-size: 2.2em; color: {accent}; font-weight: 800; margin-bottom: 8px;'>{sug['readiness']}%</div>
+                        <div style='font-size: 0.85em; color: #9ca3af;'>{sug['matched_count']}/{sug['total_count']} skills matched</div>
+                        {f"<div style='font-size: 0.8em; color: #00BCD4; margin-top: 8px; font-weight: 600;'>Currently Selected</div>" if is_active else ""}
+                    </div>
+                    """,
                     unsafe_allow_html=True
                 )
                 if not is_active:
-                    if st.button(f"View as {sug['role']}", key=f"switch_role_{i}", use_container_width=True):
+                    if st.button(f"Switch to {sug['role']}", key=f"switch_role_{i}", use_container_width=True):
                         with st.spinner(f"Re-analyzing as {sug['role']}..."):
                             try:
                                 resp = requests.post(
@@ -280,7 +570,7 @@ if st.session_state.profile:
             skills = profile.get("skills", [])
             if skills:
                 for skill in skills:
-                    st.write(f"• {skill}")
+                    st.markdown(f'<div class="section-tag">{skill}</div>', unsafe_allow_html=True)
             else:
                 st.info("No skills extracted")
 
@@ -289,7 +579,7 @@ if st.session_state.profile:
             projects = profile.get("projects", [])
             if projects:
                 for project in projects:
-                    st.write(f"• {project}")
+                    st.markdown(f'<div class="section-tag">{project}</div>', unsafe_allow_html=True)
             else:
                 st.info("No projects found")
 
@@ -330,10 +620,12 @@ if st.session_state.profile:
         readiness = profile.get('readiness', 0)
         bar_color = "#00BCD4" if readiness >= 70 else "#FF9800" if readiness >= 40 else "#F44336"
         st.markdown(f"### Overall Readiness: **{readiness}%**")
+        
+        # Enhanced progress bar with gradient
         st.markdown(
-            f"<div style='background:#e0e0e0;border-radius:10px;height:24px;width:100%;'>"
-            f"<div style='background:{bar_color};width:{readiness}%;height:24px;border-radius:10px;"
-            f"display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:13px;'>"
+            f"<div style='background:linear-gradient(90deg, rgba(30,41,59,0.5), rgba(15,76,117,0.3));border-radius:16px;height:32px;width:100%;overflow:hidden;border:1px solid rgba(0,188,212,0.2);'>"
+            f"<div style='background:linear-gradient(90deg, {bar_color}, {bar_color}dd);width:{readiness}%;height:32px;border-radius:16px;"
+            f"display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;transition:width 0.5s ease;'>"
             f"{readiness}%</div></div>",
             unsafe_allow_html=True
         )
@@ -355,7 +647,7 @@ if st.session_state.profile:
             matched = profile.get("matched_skills", [])
             if matched:
                 for skill in matched:
-                    st.write(f"✓ {skill}")
+                    st.markdown(f'<div class="section-tag">✓ {skill}</div>', unsafe_allow_html=True)
             else:
                 st.info("No matched skills")
 
@@ -364,7 +656,7 @@ if st.session_state.profile:
             missing = profile.get("missing_skills", [])
             if missing:
                 for skill in missing:
-                    st.write(f"⚠ {skill}")
+                    st.markdown(f'<div class="section-tag">⬆ {skill}</div>', unsafe_allow_html=True)
             else:
                 st.success("You have all required skills!")
 
@@ -390,21 +682,21 @@ if st.session_state.profile:
             ])
 
             with qtab1:
-                st.markdown("*Questions based on your technical skills and knowledge gaps.*")
+                st.markdown("*Questions focused on your technical skills, knowledge, and areas for growth.*")
                 st.write("")
                 for idx, q in enumerate(tech_q, 1):
                     st.markdown(f"**Q{idx}.** {q}")
                     st.divider()
 
             with qtab2:
-                st.markdown("*Questions based on your actual projects and work experience.*")
+                st.markdown("*Questions about your actual projects and hands-on experience.*")
                 st.write("")
                 for idx, q in enumerate(proj_q, 1):
                     st.markdown(f"**Q{idx}.** {q}")
                     st.divider()
 
             with qtab3:
-                st.markdown("*Situational questions to test how you handle real workplace scenarios.*")
+                st.markdown("*Situational and behavioral questions to assess workplace approach.*")
                 st.write("")
                 for idx, q in enumerate(scene_q, 1):
                     st.markdown(f"**Q{idx}.** {q}")
@@ -426,22 +718,33 @@ if st.session_state.profile:
                 if isinstance(rec, dict):
                     skill = rec.get("skill", "")
                     courses = rec.get("courses", [])
-                    with st.expander(f"{skill}", expanded=True):
+                    with st.expander(f"Learn {skill}", expanded=False):
                         for course in courses:
                             name = course.get("name", "")
                             platform = course.get("platform", "")
                             url = course.get("url", "")
                             duration = course.get("duration", "")
                             price = course.get("price", "")
-                            price_label = "FREE" if "Free" in price else "PAID"
+                            price_label = "Free" if "Free" in price else "Paid"
+                            price_color = "#10b981" if "Free" in price else "#f59e0b"
+                            
+                            st.markdown(
+                                f"<div style='margin: 12px 0; padding: 12px; background: rgba(0,188,212,0.05); border-radius: 10px; border-left: 3px solid #00bcd4;'>"
+                                f"<div style='font-weight: 600; color: #e5e7eb;'>"
+                            )
                             if url:
-                                st.markdown(
-                                    f"**[{name}]({url})**  \n"
-                                    f"&nbsp;&nbsp;&nbsp;{platform} &nbsp;|&nbsp; {duration} &nbsp;|&nbsp; {price_label}"
-                                )
+                                st.markdown(f"[{name}]({url})")
                             else:
-                                st.markdown(f"**{name}** — {platform} | {duration} | {price_label}")
-                            st.write("")
+                                st.markdown(name)
+                            
+                            st.markdown(
+                                f"<div style='font-size: 0.9em; color: #9ca3af; margin-top: 6px;'>"
+                                f"{platform} &nbsp;|&nbsp; {duration} &nbsp;|&nbsp; "
+                                f"<span style='color: {price_color}; font-weight: 600;'>{price_label}</span>"
+                                f"</div>"
+                                f"</div>",
+                                unsafe_allow_html=True
+                            )
                 else:
                     st.info(str(rec))
         else:
@@ -456,21 +759,20 @@ if st.session_state.profile:
                     phase = step.get("phase", f"Phase {idx}")
                     focus = step.get("focus", "")
                     skills_to_learn = step.get("skills_to_learn", step.get("skills", []))
-                    col_num, col_content = st.columns([0.08, 0.92])
-                    with col_num:
-                        st.markdown(
-                            f"<div style='background:#00BCD4;color:white;border-radius:50%;"
-                            f"width:36px;height:36px;display:flex;align-items:center;"
-                            f"justify-content:center;font-weight:bold;'>{idx}</div>",
-                            unsafe_allow_html=True
-                        )
-                    with col_content:
-                        st.markdown(f"**{phase}**")
-                        if focus:
-                            st.markdown(f"_{focus}_")
-                        if skills_to_learn:
-                            st.markdown("Skills to focus on: " + " ".join([f"`{s}`" for s in skills_to_learn]))
-                    st.write("")
+                    
+                    st.markdown(
+                        f"<div style='background: linear-gradient(135deg, rgba(0,188,212,0.1), rgba(0,172,193,0.05)); border-left: 4px solid #00bcd4; border-radius: 12px; padding: 16px; margin: 12px 0;'>"
+                        f"<div style='display: flex; align-items: center;'>"
+                        f"<div style='background: linear-gradient(135deg, #00bcd4, #00acc1); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 16px; flex-shrink: 0;'>{idx}</div>"
+                        f"<div>"
+                        f"<div style='font-weight: 700; color: #e5e7eb; font-size: 1.05em;'>{phase}</div>"
+                        f"<div style='color: #9ca3af; font-size: 0.9em; margin-top: 4px;'>{focus}</div>"
+                        f"{'<div style=\"margin-top: 8px; font-size: 0.85em; color: #00bcd4;\">Skills to focus: ' + ', '.join([f'<span style=\"background: rgba(0,188,212,0.15); padding: 2px 8px; border-radius: 6px; margin-right: 4px;\">{s}</span>' for s in skills_to_learn]) + '</div>' if skills_to_learn else ''}"
+                        f"</div>"
+                        f"</div>"
+                        f"</div>",
+                        unsafe_allow_html=True
+                    )
         else:
             st.info("No roadmap available")
 
@@ -478,7 +780,6 @@ if st.session_state.profile:
     st.subheader("Export Results")
     col1, col2 = st.columns(2)
 
-    # Generate custom PDF filename
     candidate_name = profile.get("name", "Candidate").replace(" ", "_")
     role_name = target_role.replace(" ", "_")
     pdf_filename = f"SkillWave_{candidate_name}_{role_name}.pdf"
@@ -494,10 +795,11 @@ if st.session_state.profile:
                 )
                 pdf_response.raise_for_status()
                 st.download_button(
-                    label="Click to download PDF",
+                    label="Download PDF",
                     data=pdf_response.content,
                     file_name=pdf_filename,
-                    mime="application/pdf"
+                    mime="application/pdf",
+                    use_container_width=True
                 )
             except Exception as e:
                 st.error(f"Error generating PDF: {str(e)}")
@@ -512,10 +814,11 @@ if st.session_state.profile:
                 )
                 csv_response.raise_for_status()
                 st.download_button(
-                    label="Click to download CSV",
+                    label="Download CSV",
                     data=csv_response.content,
                     file_name=csv_filename,
-                    mime="text/csv"
+                    mime="text/csv",
+                    use_container_width=True
                 )
             except Exception as e:
                 st.error(f"Error generating CSV: {str(e)}")
