@@ -26,18 +26,17 @@ def get_roles():
     roles = list(ROLE_SKILLS.keys())
     return jsonify({"roles": roles}), 200
 
-
 @app.route("/analyze", methods=["POST"])
 def analyze():
     try:
         data = request.json
         resume_text = data.get("resume_text")
-        target_role = data.get("target_role")
+        target_role = data.get("target_role")  # may be "" or None -> auto-detect
 
-        if not resume_text or not target_role:
-            return jsonify({"error": "Missing resume_text or target_role"}), 400
+        if not resume_text:
+            return jsonify({"error": "Missing resume_text"}), 400
 
-        print(f"Analyzing resume for role: {target_role} | text length: {len(resume_text)}")
+        print(f"Analyzing resume for role: {target_role or 'AUTO-DETECT'} | text length: {len(resume_text)}")
         profile = analyze_skills(resume_text, target_role)
         return jsonify(profile), 200
 

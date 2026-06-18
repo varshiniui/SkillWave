@@ -243,12 +243,9 @@ def clean_name(name: str) -> str:
         return name.replace(" ", "")
     return name.strip()
 
-def analyze_skills(resume_text, target_role):
-    print("=== skill_analyzer.py v9 (FIXED) loaded ===")
-
-    with open("role_skills.json") as f:
-        role_skills = json.load(f)
-    required_skills = role_skills.get(target_role, [])
+def extract_resume_data(resume_text):
+    """Extract structured candidate data (name, skills, projects, etc.) from resume text.
+    This is role-independent — it runs once per resume, regardless of target role."""
 
     part1 = resume_text[:2000]
     part2 = resume_text[2000:4500]
@@ -326,13 +323,11 @@ Return ONLY valid JSON:
             parsed = json.loads(response_text)
             parsed["name"] = clean_name(parsed.get("name", "Candidate"))
 
-            # FILTER & VALIDATE SKILLS: Only keep actual tech skills
             raw_skills = parsed.get("skills", [])
             parsed["skills"] = filter_and_validate_skills(raw_skills)
             print(f"Raw skills ({len(raw_skills)}): {raw_skills}")
             print(f"Validated skills ({len(parsed['skills'])}): {parsed['skills']}")
 
-            # Clean projects
             url_kw = ["http", "www", ".com", ".app", ".io", ".vercel", "github", "portfolio"]
             bad_phrases = ["restaurant discovery", "customer journey", "time line", "case study", "landing page"]
             projects = [p for p in parsed.get("projects", []) if not any(x in p.lower() for x in url_kw + bad_phrases)]
@@ -343,7 +338,6 @@ Return ONLY valid JSON:
                     deduped.append(p)
             parsed["projects"] = deduped
 
-            # Ensure experience doesn't repeat internships
             if "experience" not in parsed or parsed.get("experience") is None:
                 parsed["experience"] = []
             internship_names_lower = [i.lower().strip() for i in parsed.get("internships", [])]
@@ -370,49 +364,96 @@ Return ONLY valid JSON:
                 traceback.print_exc()
                 break
 
-    # IMPROVED SKILL MATCHING: Normalize both candidate and required skills
-    candidate_skills_normalized = [normalize_skill(s) for s in resume_data.get("skills", [])]
-    missing_skills, matched_skills = [], []
+    return resume_data
 
-    DEPLOYMENT_INDICATORS = {
-        "vercel", "railway", "netlify", "render", "heroku",
-        "docker", "kubernetes", "aws", "azure", "google cloud", "ci/cd"
-    }
+
+DEPLOYMENT_INDICATORS = {
+    "vercel", "railway", "netlify", "render", "heroku",
+    "docker", "kubernetes", "aws", "azure", "google cloud", "ci/cd"
+}
+
+
+def match_skills_to_role(candidate_skills, required_skills):
+    """Compare candidate skills against one role's required skills.
+    Returns (matched_skills, missing_skills, readiness_percent)."""
+    candidate_skills_normalized = [normalize_skill(s) for s in candidate_skills]
+    missing_skills, matched_skills = [], []
 
     for req in required_skills:
         req_normalized = normalize_skill(req)
         matched = False
-        
-        # Check for direct normalized match
+
         if req_normalized in candidate_skills_normalized:
             matched = True
         else:
-            # Check for fuzzy match
             for cand_norm in candidate_skills_normalized:
                 if similarity(req_normalized, cand_norm) > 0.80:
                     matched = True
                     break
 
-        # Special case: "Deployment" counts as matched if candidate lists any deployment platform
         if not matched and req_normalized == "deployment":
             if any(plat in candidate_skills_normalized for plat in DEPLOYMENT_INDICATORS):
                 matched = True
-        
+
         if matched:
             matched_skills.append(req)
         else:
             missing_skills.append(req)
 
     readiness = int((len(matched_skills) / len(required_skills)) * 100) if required_skills else 0
+    return matched_skills, missing_skills, readiness
 
-    # Learning recommendations
+
+def suggest_best_roles(candidate_skills, role_skills, top_n=3):
+    """When the candidate has no target role in mind, score their skills against
+    every role in role_skills.json and return the best-fitting ones."""
+    role_scores = []
+    for role, required_skills in role_skills.items():
+        matched_skills, missing_skills, readiness = match_skills_to_role(candidate_skills, required_skills)
+        role_scores.append({
+            "role": role,
+            "readiness": readiness,
+            "matched_count": len(matched_skills),
+            "total_count": len(required_skills),
+            "matched_skills": matched_skills,
+            "missing_skills": missing_skills,
+        })
+
+    role_scores.sort(key=lambda r: (r["readiness"], r["matched_count"]), reverse=True)
+    return role_scores[:top_n]
+
+
+def analyze_skills(resume_text, target_role=None):
+    """
+    target_role: a specific role name from role_skills.json, OR
+                 None / "" / "not sure" to auto-detect the best-fit role(s).
+    """
+    print("=== skill_analyzer.py v10 (ROLE SUGGESTION) loaded ===")
+
+    with open("role_skills.json") as f:
+        role_skills = json.load(f)
+
+    resume_data = extract_resume_data(resume_text)
+    candidate_skills = resume_data.get("skills", [])
+
+    no_role_given = not target_role or target_role.strip().lower() in [
+        "", "not sure", "i don't know", "i dont know", "auto", "suggest a role for me", "unsure"
+    ]
+
+    suggested_roles = None
+    if no_role_given:
+        suggested_roles = suggest_best_roles(candidate_skills, role_skills, top_n=3)
+        target_role = suggested_roles[0]["role"] if suggested_roles else None
+
+    required_skills = role_skills.get(target_role, []) if target_role else []
+    matched_skills, missing_skills, readiness = match_skills_to_role(candidate_skills, required_skills)
+
     learning_recommendations = []
     for skill in missing_skills[:6]:
         courses = get_course_links(skill)
         learning_recommendations.append({"skill": skill, "courses": courses})
 
-    # Roadmap template
-    roadmap_template = ROADMAP_TEMPLATES.get(target_role, [])
+    roadmap_template = ROADMAP_TEMPLATES.get(target_role, []) if target_role else []
     if roadmap_template:
         preparation_roadmap = []
         for phase in roadmap_template:
@@ -426,7 +467,7 @@ Return ONLY valid JSON:
                 "skills_to_learn": phase_missing if phase_missing else [],
             })
     else:
-        chunk = max(1, len(missing_skills) // 3)
+        chunk = max(1, len(missing_skills) // 3) if missing_skills else 1
         preparation_roadmap = []
         phases = [
             ("Week 1-2: Foundation Skills", missing_skills[:chunk], "Build core fundamentals"),
@@ -440,11 +481,14 @@ Return ONLY valid JSON:
     profile = {
         "name": resume_data.get("name", "Candidate"),
         "education": resume_data.get("education", "Not specified"),
-        "skills": resume_data.get("skills", []),
+        "skills": candidate_skills,
         "projects": resume_data.get("projects", []),
         "internships": resume_data.get("internships", []),
         "experience": resume_data.get("experience", []),
         "certifications": resume_data.get("certifications", []),
+        "target_role": target_role,
+        "auto_detected": no_role_given,
+        "suggested_roles": suggested_roles,
         "required_skills": required_skills,
         "missing_skills": missing_skills,
         "matched_skills": matched_skills,
@@ -453,9 +497,8 @@ Return ONLY valid JSON:
         "preparation_roadmap": preparation_roadmap
     }
 
-    print(f"Final: {len(matched_skills)}/{len(required_skills)} matched | Readiness: {readiness}%")
+    print(f"Final: {len(matched_skills)}/{len(required_skills)} matched | Readiness: {readiness}% | Role: {target_role} | Auto: {no_role_given}")
     return profile
-
 def similarity(a: str, b: str) -> float:
     """Calculate string similarity (0-1)."""
     from difflib import SequenceMatcher

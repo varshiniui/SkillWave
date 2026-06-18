@@ -113,6 +113,8 @@ if 'structured_questions' not in st.session_state:
 if 'target_role' not in st.session_state:
     st.session_state.target_role = None
 
+if 'resume_text' not in st.session_state:
+    st.session_state.resume_text = None
 # Sidebar
 with st.sidebar:
     st.header("Resume Analysis")
@@ -125,15 +127,16 @@ with st.sidebar:
         st.error(f"Cannot connect to backend. Ensure Flask server is running on {API_URL}")
         st.stop()
 
+    AUTO_DETECT_OPTION = "Not sure — Auto-detect best-fit role"
+
     resume_file = st.file_uploader("Upload Resume (PDF)", type="pdf")
-    target_role = st.selectbox("Select Target Role", available_roles)
+    role_options = [AUTO_DETECT_OPTION] + available_roles
+    target_role_choice = st.selectbox("Select Target Role", role_options)
     st.divider()
 
     if st.button("Analyze Resume", use_container_width=True, type="primary"):
         if not resume_file:
             st.error("Please upload a resume PDF")
-        elif not target_role:
-            st.error("Please select a target role")
         else:
             with st.spinner("Analyzing resume..."):
                 try:
@@ -146,18 +149,25 @@ with st.sidebar:
 
                     print(f"Extracted resume text length: {len(resume_text)}")
 
+                    # Empty string tells the backend to auto-detect the best role
+                    role_for_api = "" if target_role_choice == AUTO_DETECT_OPTION else target_role_choice
+
                     response = requests.post(
                         f"{API_URL}/analyze",
-                        json={"resume_text": resume_text, "target_role": target_role},
+                        json={"resume_text": resume_text, "target_role": role_for_api},
                         timeout=60
                     )
                     response.raise_for_status()
                     st.session_state.profile = response.json()
-                    st.session_state.target_role = target_role
+                    st.session_state.resume_text = resume_text
+
+                    # Backend returns the role it actually used (auto-detected or chosen)
+                    resolved_role = st.session_state.profile.get("target_role") or role_for_api
+                    st.session_state.target_role = resolved_role
 
                     questions_response = requests.post(
                         f"{API_URL}/questions",
-                        json={"profile": st.session_state.profile, "target_role": target_role},
+                        json={"profile": st.session_state.profile, "target_role": resolved_role},
                         timeout=60
                     )
                     questions_response.raise_for_status()
@@ -180,13 +190,58 @@ with st.sidebar:
                     st.error(f"Error: {error_msg}")
                 except Exception as e:
                     st.error(f"Unexpected error: {str(e)}")
-
 # Main content
 if st.session_state.profile:
     profile = st.session_state.profile
     questions = st.session_state.questions
     structured_questions = st.session_state.structured_questions or {}
     target_role = st.session_state.target_role
+
+    if profile.get("auto_detected") and profile.get("suggested_roles"):
+        st.markdown("### 🎯 Role Detected from Resume")
+        st.caption("No target role was specified, so SkillWave identified the best-fitting roles for this candidate. The report below is based on the top match.")
+
+        suggestions = profile["suggested_roles"]
+        cols = st.columns(len(suggestions))
+        for i, (col, sug) in enumerate(zip(cols, suggestions)):
+            with col:
+                is_active = sug["role"] == target_role
+                accent = "#00BCD4" if is_active else "#cccccc"
+                st.markdown(
+                    f"<div style='border:2px solid {accent};border-radius:10px;padding:14px;text-align:center;'>"
+                    f"<div style='font-weight:bold;font-size:1.05em;'>{sug['role']}</div>"
+                    f"<div style='font-size:1.8em;color:{accent};font-weight:bold;'>{sug['readiness']}%</div>"
+                    f"<div style='font-size:0.85em;color:#666;'>{sug['matched_count']}/{sug['total_count']} skills matched</div>"
+                    + ("<div style='font-size:0.8em;color:#00BCD4;margin-top:4px;'>★ Shown below</div>" if is_active else "")
+                    + "</div>",
+                    unsafe_allow_html=True
+                )
+                if not is_active:
+                    if st.button(f"View as {sug['role']}", key=f"switch_role_{i}", use_container_width=True):
+                        with st.spinner(f"Re-analyzing as {sug['role']}..."):
+                            try:
+                                resp = requests.post(
+                                    f"{API_URL}/analyze",
+                                    json={"resume_text": st.session_state.resume_text, "target_role": sug["role"]},
+                                    timeout=60
+                                )
+                                resp.raise_for_status()
+                                st.session_state.profile = resp.json()
+                                st.session_state.target_role = sug["role"]
+
+                                q_resp = requests.post(
+                                    f"{API_URL}/questions",
+                                    json={"profile": st.session_state.profile, "target_role": sug["role"]},
+                                    timeout=60
+                                )
+                                q_resp.raise_for_status()
+                                q_data = q_resp.json()
+                                st.session_state.questions = q_data.get("questions", [])
+                                st.session_state.structured_questions = q_data.get("structured", {})
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"Could not switch role: {str(e)}")
+        st.divider()
 
     tab1, tab2, tab3, tab4 = st.tabs(["Profile", "Skill Analysis", "Interview Questions", "Recommendations"])
 
