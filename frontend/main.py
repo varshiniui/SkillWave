@@ -115,6 +115,11 @@ if 'target_role' not in st.session_state:
 
 if 'resume_text' not in st.session_state:
     st.session_state.resume_text = None
+
+if 'auto_detected' not in st.session_state:
+    st.session_state.auto_detected = False
+if 'suggested_roles' not in st.session_state:
+    st.session_state.suggested_roles = None
 # Sidebar
 with st.sidebar:
     st.header("Resume Analysis")
@@ -164,6 +169,8 @@ with st.sidebar:
                     # Backend returns the role it actually used (auto-detected or chosen)
                     resolved_role = st.session_state.profile.get("target_role") or role_for_api
                     st.session_state.target_role = resolved_role
+                    st.session_state.auto_detected = st.session_state.profile.get("auto_detected", False)
+                    st.session_state.suggested_roles = st.session_state.profile.get("suggested_roles")
 
                     questions_response = requests.post(
                         f"{API_URL}/questions",
@@ -197,11 +204,13 @@ if st.session_state.profile:
     structured_questions = st.session_state.structured_questions or {}
     target_role = st.session_state.target_role
 
-    if profile.get("auto_detected") and profile.get("suggested_roles"):
-        st.markdown("### Role Detected from Resume")
-        st.caption("No target role was specified, so SkillWave identified the best-fitting roles for this candidate. The report below is based on the top match.")
+    st.markdown(f"📋 **Currently viewing analysis for:** {target_role}")
 
-        suggestions = profile["suggested_roles"]
+    if st.session_state.auto_detected and st.session_state.suggested_roles:
+        st.markdown("### Role Detected from Resume")
+        st.caption("No target role was specified, so SkillWave identified the best-fitting roles for this candidate. Click any card to switch the report to that role.")
+
+        suggestions = st.session_state.suggested_roles
         cols = st.columns(len(suggestions))
         for i, (col, sug) in enumerate(zip(cols, suggestions)):
             with col:
