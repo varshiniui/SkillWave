@@ -38,12 +38,22 @@ st.markdown("""
         display: none !important;
     }
 
-    /* Sidebar collapse/expand arrow — was inheriting a near-invisible
-       default color against the dark sidebar. Force it visible. */
+    /* Sidebar collapse/expand arrow — this is a known Streamlit issue
+       (github.com/streamlit/streamlit/issues/11449): the button is
+       fixed-position but sits BEHIND sidebar content because our custom
+       sidebar styling (backdrop-filter, etc.) creates new stacking
+       contexts with higher z-index. Force it above everything. */
+    [data-testid="stSidebarHeader"],
     [data-testid="stSidebarCollapseButton"],
     [data-testid="collapsedControl"] {
         opacity: 1 !important;
         visibility: visible !important;
+        z-index: 999999 !important;
+    }
+
+    [data-testid="stSidebarCollapseButton"] button {
+        z-index: 999999 !important;
+        position: relative !important;
     }
 
     [data-testid="stSidebarCollapseButton"] svg,
@@ -322,6 +332,20 @@ st.markdown("""
         color: #e5e7eb !important;
         border: 1px solid rgba(0, 188, 212, 0.4) !important;
         border-radius: 10px !important;
+    }
+
+    /* The "x" button to remove an uploaded file — needs its own rule,
+       since it only inherited the generic button background above and
+       the icon itself had no contrasting fill set. */
+    [data-testid="stFileUploaderDeleteBtn"] {
+        background: rgba(15, 30, 58, 0.9) !important;
+        border: 1px solid rgba(0, 188, 212, 0.5) !important;
+        border-radius: 50% !important;
+    }
+
+    [data-testid="stFileUploaderDeleteBtn"] svg {
+        fill: #00bcd4 !important;
+        opacity: 1 !important;
     }
 
     [data-testid="stFileUploaderFile"] {
