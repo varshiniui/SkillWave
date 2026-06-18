@@ -54,12 +54,18 @@ st.markdown("""
     [data-testid="stSidebarCollapseButton"] button {
         z-index: 999999 !important;
         position: relative !important;
+        background: rgba(15, 30, 58, 0.85) !important;
+        border-radius: 50% !important;
     }
 
-    [data-testid="stSidebarCollapseButton"] svg,
-    [data-testid="collapsedControl"] svg {
+    /* The icon itself is a Material Symbols font glyph rendered as text,
+       not an <svg> — color (not fill) is what actually controls it. */
+    [data-testid="stSidebarCollapseButton"] *,
+    [data-testid="collapsedControl"] * {
+        color: #00bcd4 !important;
         fill: #00bcd4 !important;
         stroke: #00bcd4 !important;
+        opacity: 1 !important;
     }
     
     /* Sidebar Styling */
@@ -343,8 +349,10 @@ st.markdown("""
         border-radius: 50% !important;
     }
 
-    [data-testid="stFileUploaderDeleteBtn"] svg {
+    [data-testid="stFileUploaderDeleteBtn"] * {
+        color: #00bcd4 !important;
         fill: #00bcd4 !important;
+        stroke: #00bcd4 !important;
         opacity: 1 !important;
     }
 
